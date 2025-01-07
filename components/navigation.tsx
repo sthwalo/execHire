@@ -40,7 +40,9 @@ export function Navigation() {
               {route.name}
             </Link>
           ))}
-          <Button>Book Now</Button>
+          <Link href="/contact">
+            <Button>Book Now</Button>
+          </Link>
         </nav>
 
         <Button
@@ -67,7 +69,9 @@ export function Navigation() {
                   {route.name}
                 </Link>
               ))}
-              <Button className="w-full">Book Now</Button>
+              <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
+                <Button className="w-full">Book Now</Button>
+              </Link>
             </nav>
           </div>
         )}

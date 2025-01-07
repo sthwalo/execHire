@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Car, Shield, Clock, Award } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -23,9 +24,11 @@ export default function Home() {
             ExecuHire offers premium car rental services for those who demand excellence.
             Choose from our curated fleet of luxury vehicles.
           </p>
-          <Button size="lg" className="text-lg">
-            Explore Our Fleet
-          </Button>
+          <Link href="/fleet">
+            <Button size="lg" className="text-lg">
+              Explore Our Fleet
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -117,9 +120,11 @@ export default function Home() {
           <p className="text-lg mb-8 max-w-2xl mx-auto">
             Book your premium vehicle today and elevate your journey with ExecuHire.
           </p>
-          <Button variant="secondary" size="lg">
-            Book Now
-          </Button>
+          <Link href="/contact">
+            <Button variant="secondary" size="lg">
+              Book Now
+            </Button>
+          </Link>
         </div>
       </section>
     </div>

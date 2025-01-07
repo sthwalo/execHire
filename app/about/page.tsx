@@ -17,7 +17,7 @@ export default function About() {
 
         <div className="space-y-6 text-lg">
           <p>
-            ExecuHire is London's premier luxury car hire service, offering an exclusive fleet
+            ExecuHire is Gauteng premier luxury car hire service, offering an exclusive fleet
             of high-end vehicles for discerning clients who demand the very best in automotive excellence.
           </p>
           
