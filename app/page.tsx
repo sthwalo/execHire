@@ -81,22 +81,25 @@ export default function Home() {
                 image: '/images/fleet/urus.avif',
                 name: 'Lamborghini Urus',
                 price: 'R18,000/half-day',
-                shortDesc: 'Premium SUV, Perfect for Special Events'
+                shortDesc: 'Premium SUV, 4.0L V8 Twin-Turbo',
+                specs: ['Premium SUV', '4.0L V8 Twin-Turbo', 'Automatic', '5 Seats', '2hrs: R5,000']
+              },
+              {
+                image: '/images/fleet/i7.jpg',
+                name: 'BMW i7 740d',
+                price: 'R10,000/half-day',
+                shortDesc: 'Luxury Sedan, Electric/Diesel Hybrid',
+                specs: ['Luxury Sedan', 'Electric/Diesel Hybrid', 'Automatic', '5 Seats', '2hrs: R3,000']
               },
               {
                 image: '/images/fleet/g63.avif',
                 name: 'Mercedes G63',
                 price: 'R10,000/half-day',
-                shortDesc: 'Luxury SUV, Ultimate Style Statement'
-              },
-              {
-                image: '/images/fleet/panamera.avif',
-                name: 'Porsche Panamera GTS',
-                price: 'R8,000/half-day',
-                shortDesc: 'Sport Sedan, Elegance Meets Performance'
+                shortDesc: 'Luxury SUV, 4.0L V8 Biturbo',
+                specs: ['Luxury SUV', '4.0L V8 Biturbo', 'Automatic', '5 Seats', '2hrs: R3,000']
               },
             ].map((car, index) => (
-              <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg">
+              <div key={index} className="group bg-card rounded-lg overflow-hidden border shadow-sm">
                 <div className="aspect-[16/9] relative">
                   <Image
                     src={car.image}
@@ -106,27 +109,39 @@ export default function Home() {
                     priority={index === 0}
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-                  <div className="text-white space-y-2">
-                    <h3 className="text-xl font-semibold">{car.name}</h3>
-                    <p className="text-sm mb-1">{car.shortDesc}</p>
-                    <p className="text-sm font-semibold mb-3">Starting from {car.price}</p>
-                    <a
-                      href={createWhatsAppLink(car.name)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block w-full"
-                    >
-                      <Button className="w-full">Book Now</Button>
-                    </a>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2">{car.name}</h3>
+                    <p className="text-muted-foreground">{car.shortDesc}</p>
                   </div>
+                  <div className="space-y-2">
+                    <p className="font-semibold text-lg">{car.price}</p>
+                    <ul className="space-y-1">
+                      {car.specs.map((spec, idx) => (
+                        <li key={idx} className="text-sm text-muted-foreground">
+                          {spec}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <a
+                    href={createWhatsAppLink(car.name)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full"
+                  >
+                    <Button className="w-full">Book Now</Button>
+                  </a>
                 </div>
               </div>
             ))}
           </div>
           <div className="text-center mt-8">
-            <Link href="/fleet" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">
-              View All Vehicles
+            <Link href="/fleet">
+              <Button size="lg" variant="outline" className="gap-2">
+                <Car className="w-4 h-4" />
+                View All Vehicles
+              </Button>
             </Link>
           </div>
         </div>
