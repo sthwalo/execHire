@@ -47,15 +47,17 @@ export function Navigation() {
 
         <Button
           variant="ghost"
-          className="md:hidden"
+          className="relative z-50 md:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-expanded={isMenuOpen}
+          aria-label="Toggle menu"
         >
           {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </Button>
 
         {isMenuOpen && (
-          <div className="absolute top-16 left-0 right-0 bg-background border-b md:hidden">
-            <nav className="container py-4 flex flex-col space-y-4">
+          <div className="fixed inset-0 z-40 bg-background md:hidden">
+            <nav className="container pt-20 flex flex-col space-y-4">
               {routes.map((route) => (
                 <Link
                   key={route.path}
