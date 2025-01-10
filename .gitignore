@@ -41,3 +41,14 @@ Thumbs.db
 # Temporary files
 *.log
 *.tmp
+
+# Asset files
+*.ico
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg  
+*.avif
+
