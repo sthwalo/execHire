@@ -79,7 +79,7 @@ export default function About() {
           <p className="text-muted-foreground">
             We understand that each event is unique and deserves special attention. From matric dances that mark important 
             milestones to weddings that celebrate love, our team is dedicated to ensuring your experience with us is nothing 
-            short of exceptional. Available 7 days a week, we're here to make your special moments truly unforgettable.
+            short of exceptional. Available 7 days a week,to make your special moments truly unforgettable.
           </p>
         </div>
       </div>
