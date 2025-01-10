@@ -37,7 +37,7 @@ const socialMediaLinks = [
     ariaLabel: 'Follow us on TikTok'
   },
   {
-    href: '#', 
+    href: 'https://www.instagram.com/execuhire?igsh=MThjc3pleG1sMW0z&utm_source=qr', 
     label: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
