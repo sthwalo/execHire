@@ -8,7 +8,7 @@ export default function About() {
         
         <div className="relative h-64 mb-8 rounded-lg overflow-hidden">
           <Image
-            src="https://images.unsplash.com/photo-1562519819-016930ada31c?auto=format&fit=crop&q=80"
+            src="/images/fleet/urus.avif"
             alt="Luxury Cars"
             fill
             className="object-cover"

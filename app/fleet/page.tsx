@@ -5,13 +5,13 @@ import Link from 'next/link';
 const cars = [
   {
     name: "Lamborghini Urus",
-    image: "/images/fleet/urus.jpg",
+    image: "/images/fleet/urus.avif",
     price: "R18,000/half-day",
     specs: ["Premium SUV", "4.0L V8 Twin-Turbo", "Automatic", "5 Seats", "2hrs: R5,000"]
   },
   {
     name: "BMW i7 740d",
-    image: "/images/fleet/i7.jpg",
+    image: "/images/fleet/i7.jpg", 
     price: "R10,000/half-day",
     specs: ["Luxury Sedan", "Electric/Diesel Hybrid", "Automatic", "5 Seats", "2hrs: R3,000"]
   },
@@ -23,13 +23,13 @@ const cars = [
   },
   {
     name: "Maserati Levante",
-    image: "/images/fleet/levante.jpg",
+    image: "/images/fleet/Levante.webp",
     price: "R8,000/half-day",
     specs: ["Luxury SUV", "3.0L V6 Twin-Turbo", "Automatic", "5 Seats", "2hrs: R2,500"]
   },
   {
     name: "Porsche Panamera GTS",
-    image: "/images/fleet/panamera.jpg",
+    image: "/images/fleet/panamera.avif",
     price: "R8,000/half-day",
     specs: ["Sport Sedan", "4.0L V8", "PDK Auto", "4 Seats", "2hrs: R2,500"]
   },
@@ -47,7 +47,7 @@ const cars = [
   },
   {
     name: "Mercedes GLE 63s",
-    image: "/images/fleet/gle63s.jpg",
+    image: "/images/fleet/gle.avif",
     price: "R8,000/half-day",
     specs: ["Performance SUV", "4.0L V8 Biturbo", "Automatic", "5 Seats", "2hrs: R2,500"]
   },
@@ -71,37 +71,37 @@ const cars = [
   },
   {
     name: "Mercedes CLS 53",
-    image: "/images/fleet/cls53.jpg",
+    image: "/images/fleet/cls53.avif",
     price: "R8,000/half-day",
     specs: ["Luxury Coupe", "3.0L Inline-6", "Automatic", "4 Seats", "2hrs: R2,500"]
   },
   {
     name: "Mercedes GLE 400d",
-    image: "/images/fleet/gle400d.jpg",
+    image: "/images/fleet/gle400.jpg",
     price: "R6,500/half-day",
     specs: ["Luxury SUV", "3.0L Diesel", "Automatic", "5 Seats", "2hrs: R2,000"]
   },
   {
     name: "Mercedes C43",
-    image: "/images/fleet/c43.jpg",
+    image: "/images/fleet/c43.webp",
     price: "R6,500/half-day",
     specs: ["Sport Sedan", "3.0L V6 Biturbo", "Automatic", "5 Seats", "2hrs: R2,000"]
   },
   {
     name: "Mercedes GLE 350d",
-    image: "/images/fleet/gle350d.jpg",
+    image: "/images/fleet/gle350.avif",
     price: "R6,000/half-day",
     specs: ["Luxury SUV", "3.0L Diesel", "Automatic", "5 Seats", "2hrs: R2,000"]
   },
   {
     name: "Range Rover Sport",
-    image: "/images/fleet/rrsport.jpg",
+    image: "/images/fleet/roversport.avif",
     price: "R6,000/half-day",
     specs: ["Luxury SUV", "3.0L V6", "Automatic", "5 Seats", "2hrs: R2,000"]
   },
   {
     name: "Mercedes A45",
-    image: "/images/fleet/a45.jpg",
+    image: "/images/fleet/a45.avif",
     price: "R4,500/half-day",
     specs: ["Hot Hatch", "2.0L Turbo", "Automatic", "5 Seats", "2hrs: R2,000"]
   },
