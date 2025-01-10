@@ -77,19 +77,19 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                image: '/images/fleet/urus.jpg',
+                image: '/images/fleet/urus.avif',
                 name: 'Lamborghini Urus',
                 price: 'R18,000/half-day',
                 shortDesc: 'Premium SUV, Perfect for Special Events'
               },
               {
-                image: '/images/fleet/g63.jpg',
+                image: '/images/fleet/g63.avif',
                 name: 'Mercedes G63',
                 price: 'R10,000/half-day',
                 shortDesc: 'Luxury SUV, Ultimate Style Statement'
               },
               {
-                image: '/images/fleet/panamera.jpg',
+                image: '/images/fleet/panamera.avif',
                 name: 'Porsche Panamera GTS',
                 price: 'R8,000/half-day',
                 shortDesc: 'Sport Sedan, Elegance Meets Performance'
