@@ -160,6 +160,43 @@ export default function Fleet() {
           </div>
         ))}
       </div>
+
+      {/* Video Gallery */}
+      <div className="py-16 bg-muted/50">
+        <div className="container">
+          <h2 className="text-3xl font-bold text-center mb-12">Fleet in Action</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
+              <video 
+                className="w-full h-full object-cover"
+                controls
+                poster="/images/fleet/a45.avif"
+              >
+                <source src="/videos/mec.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <div className="p-4 bg-background">
+                <h3 className="font-semibold text-lg">Luxury Fleet Showcase</h3>
+                <p className="text-muted-foreground text-sm">Experience our premium vehicles in action</p>
+              </div>
+            </div>
+            <div className="aspect-video rounded-lg overflow-hidden shadow-lg">
+              <video 
+                className="w-full h-full object-cover"
+                controls
+                poster="/images/fleet/urus.avif"
+              >
+                <source src="/videos/gia.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <div className="p-4 bg-background">
+                <h3 className="font-semibold text-lg">Behind the Wheel</h3>
+                <p className="text-muted-foreground text-sm">Take a closer look at our exclusive collection</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
