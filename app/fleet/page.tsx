@@ -4,22 +4,112 @@ import Link from 'next/link';
 
 const cars = [
   {
-    name: "Mercedes-Benz S-Class",
-    image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80",
-    price: "£350/day",
-    specs: ["4.0L V8 Biturbo", "Automatic", "5 Seats", "Leather Interior"]
+    name: "Lamborghini Urus",
+    image: "/images/fleet/urus.jpg",
+    price: "R18,000/half-day",
+    specs: ["Premium SUV", "4.0L V8 Twin-Turbo", "Automatic", "5 Seats", "2hrs: R5,000"]
   },
   {
-    name: "BMW 7 Series",
-    image: "https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80",
-    price: "£320/day",
-    specs: ["3.0L Inline-6", "Automatic", "5 Seats", "Premium Sound System"]
+    name: "BMW i7 740d",
+    image: "/images/fleet/i7.jpg",
+    price: "R10,000/half-day",
+    specs: ["Luxury Sedan", "Electric/Diesel Hybrid", "Automatic", "5 Seats", "2hrs: R3,000"]
   },
   {
-    name: "Porsche Panamera",
-    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80",
-    price: "£400/day",
-    specs: ["4.0L V8", "PDK Auto", "4 Seats", "Sport Chrono Package"]
+    name: "Mercedes G63",
+    image: "/images/fleet/g63.jpg",
+    price: "R10,000/half-day",
+    specs: ["Luxury SUV", "4.0L V8 Biturbo", "Automatic", "5 Seats", "2hrs: R3,000"]
+  },
+  {
+    name: "Maserati Levante",
+    image: "/images/fleet/levante.jpg",
+    price: "R8,000/half-day",
+    specs: ["Luxury SUV", "3.0L V6 Twin-Turbo", "Automatic", "5 Seats", "2hrs: R2,500"]
+  },
+  {
+    name: "Porsche Panamera GTS",
+    image: "/images/fleet/panamera.jpg",
+    price: "R8,000/half-day",
+    specs: ["Sport Sedan", "4.0L V8", "PDK Auto", "4 Seats", "2hrs: R2,500"]
+  },
+  {
+    name: "Porsche 718 Boxster GTS",
+    image: "/images/fleet/boxster.jpg",
+    price: "R8,000/half-day",
+    specs: ["Sports Car", "4.0L Flat-6", "PDK Auto", "2 Seats", "2hrs: R2,500"]
+  },
+  {
+    name: "Audi RS5",
+    image: "/images/fleet/rs5.jpg",
+    price: "R8,000/half-day",
+    specs: ["Sport Coupe", "2.9L V6 Twin-Turbo", "Automatic", "4 Seats", "2hrs: R2,500"]
+  },
+  {
+    name: "Mercedes GLE 63s",
+    image: "/images/fleet/gle63s.jpg",
+    price: "R8,000/half-day",
+    specs: ["Performance SUV", "4.0L V8 Biturbo", "Automatic", "5 Seats", "2hrs: R2,500"]
+  },
+  {
+    name: "Mercedes C63 W204",
+    image: "/images/fleet/c63.jpg",
+    price: "R8,000/half-day",
+    specs: ["Sport Sedan", "6.2L V8", "Automatic", "5 Seats", "2hrs: R2,500"]
+  },
+  {
+    name: "Mercedes V-Class 300d",
+    image: "/images/fleet/vclass.jpg",
+    price: "R8,000/half-day",
+    specs: ["Luxury Van", "2.0L Diesel", "Automatic", "7 Seats", "2hrs: R2,500"]
+  },
+  {
+    name: "Ford Mustang GT Convertible",
+    image: "/images/fleet/mustang.jpg",
+    price: "R8,000/half-day",
+    specs: ["Convertible", "5.0L V8", "Automatic", "4 Seats", "2hrs: R2,500"]
+  },
+  {
+    name: "Mercedes CLS 53",
+    image: "/images/fleet/cls53.jpg",
+    price: "R8,000/half-day",
+    specs: ["Luxury Coupe", "3.0L Inline-6", "Automatic", "4 Seats", "2hrs: R2,500"]
+  },
+  {
+    name: "Mercedes GLE 400d",
+    image: "/images/fleet/gle400d.jpg",
+    price: "R6,500/half-day",
+    specs: ["Luxury SUV", "3.0L Diesel", "Automatic", "5 Seats", "2hrs: R2,000"]
+  },
+  {
+    name: "Mercedes C43",
+    image: "/images/fleet/c43.jpg",
+    price: "R6,500/half-day",
+    specs: ["Sport Sedan", "3.0L V6 Biturbo", "Automatic", "5 Seats", "2hrs: R2,000"]
+  },
+  {
+    name: "Mercedes GLE 350d",
+    image: "/images/fleet/gle350d.jpg",
+    price: "R6,000/half-day",
+    specs: ["Luxury SUV", "3.0L Diesel", "Automatic", "5 Seats", "2hrs: R2,000"]
+  },
+  {
+    name: "Range Rover Sport",
+    image: "/images/fleet/rrsport.jpg",
+    price: "R6,000/half-day",
+    specs: ["Luxury SUV", "3.0L V6", "Automatic", "5 Seats", "2hrs: R2,000"]
+  },
+  {
+    name: "Mercedes A45",
+    image: "/images/fleet/a45.jpg",
+    price: "R4,500/half-day",
+    specs: ["Hot Hatch", "2.0L Turbo", "Automatic", "5 Seats", "2hrs: R2,000"]
+  },
+  {
+    name: "Chevrolet Lumina SS",
+    image: "/images/fleet/lumina.jpg",
+    price: "R4,500/half-day",
+    specs: ["Sport Sedan", "6.0L V8", "Automatic", "5 Seats", "2hrs: R1,500"]
   }
 ];
 
