@@ -126,31 +126,32 @@ export default function Fleet() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {cars.map((car, index) => (
-          <div key={index} className="border rounded-lg overflow-hidden">
-            <div className="relative h-48">
+          <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg">
+            <div className="relative aspect-[16/9]">
               <Image
                 src={car.image}
                 alt={car.name}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform group-hover:scale-105"
+                priority={index < 2}
               />
             </div>
-            <div className="p-6">
-              <h2 className="text-xl font-semibold mb-2">{car.name}</h2>
-              <p className="text-lg font-medium text-primary mb-4">{car.price}</p>
-              <ul className="space-y-2 mb-6">
-                {car.specs.map((spec, i) => (
-                  <li key={i} className="text-sm text-muted-foreground">
-                    • {spec}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-4">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
+              <div className="text-white space-y-3">
+                <h3 className="text-xl font-semibold">{car.name}</h3>
+                <p className="text-sm font-semibold">Starting from {car.price}</p>
+                <ul className="text-sm space-y-1 mb-4">
+                  {car.specs.map((spec, index) => (
+                    <li key={index} className="text-gray-200">
+                      {spec}
+                    </li>
+                  ))}
+                </ul>
                 <a
                   href={createWhatsAppLink(car.name)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full"
+                  className="w-full block"
                 >
                   <Button className="w-full">Book Now</Button>
                 </a>
