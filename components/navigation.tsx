@@ -69,34 +69,26 @@ export function Navigation() {
         </Button>
 
         {isMenuOpen && (
-          <>
-            {/* Overlay */}
-            <div 
-              className="fixed inset-0 z-40 bg-gray-500/75 backdrop-blur-sm md:hidden"
-              onClick={() => setIsMenuOpen(false)}
-            />
-            {/* Menu content */}
-            <div className="fixed inset-y-0 right-0 z-40 w-full bg-background md:hidden">
-              <nav className="mobile-nav-content container pt-20 flex flex-col space-y-4">
-                {routes.map((route) => (
-                  <Link
-                    key={route.path}
-                    href={route.path}
-                    className={cn(
-                      'text-sm font-medium transition-colors hover:text-primary',
-                      pathname === route.path ? 'text-primary' : 'text-muted-foreground'
-                    )}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {route.name}
-                  </Link>
-                ))}
-                <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
-                  <Button className="w-full">Book Now</Button>
+          <div className="fixed inset-y-0 right-0 z-40 w-full md:hidden">
+            <nav className="mobile-nav-content container pt-20 flex flex-col space-y-4 bg-gray-100 p-6 rounded-lg">
+              {routes.map((route) => (
+                <Link
+                  key={route.path}
+                  href={route.path}
+                  className={cn(
+                    'text-sm font-medium transition-colors hover:text-primary p-2',
+                    pathname === route.path ? 'text-primary' : 'text-muted-foreground'
+                  )}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {route.name}
                 </Link>
-              </nav>
-            </div>
-          </>
+              ))}
+              <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
+                <Button className="w-full">Book Now</Button>
+              </Link>
+            </nav>
+          </div>
         )}
       </div>
     </header>
