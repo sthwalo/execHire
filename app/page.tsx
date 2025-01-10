@@ -77,38 +77,48 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&q=80',
-                name: 'Mercedes-Benz S-Class',
-                price: '£350/day',
+                image: '/images/fleet/urus.jpg',
+                name: 'Lamborghini Urus',
+                price: 'R18,000/half-day',
+                shortDesc: 'Premium SUV, Perfect for Special Events'
               },
               {
-                image: 'https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&q=80',
-                name: 'BMW 7 Series',
-                price: '£320/day',
+                image: '/images/fleet/g63.jpg',
+                name: 'Mercedes G63',
+                price: 'R10,000/half-day',
+                shortDesc: 'Luxury SUV, Ultimate Style Statement'
               },
               {
-                image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80',
-                name: 'Porsche Panamera',
-                price: '£400/day',
+                image: '/images/fleet/panamera.jpg',
+                name: 'Porsche Panamera GTS',
+                price: 'R8,000/half-day',
+                shortDesc: 'Sport Sedan, Elegance Meets Performance'
               },
             ].map((car, index) => (
-              <div key={index} className="group relative overflow-hidden rounded-lg">
+              <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg">
                 <div className="aspect-[16/9] relative">
                   <Image
                     src={car.image}
                     alt={car.name}
                     fill
                     className="object-cover transition-transform group-hover:scale-105"
+                    priority={index === 0}
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
                   <div className="text-white">
                     <h3 className="text-xl font-semibold mb-2">{car.name}</h3>
-                    <p className="text-sm">Starting from {car.price}</p>
+                    <p className="text-sm mb-1">{car.shortDesc}</p>
+                    <p className="text-sm font-semibold">Starting from {car.price}</p>
                   </div>
                 </div>
               </div>
             ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/fleet" className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-primary/90 transition-colors">
+              View All Vehicles
+            </Link>
           </div>
         </div>
       </section>
