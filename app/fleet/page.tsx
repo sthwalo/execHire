@@ -17,7 +17,7 @@ const cars = [
   },
   {
     name: "Mercedes G63",
-    image: "/images/fleet/g63.jpg",
+    image: "/images/fleet/g63.avif",
     price: "R10,000/half-day",
     specs: ["Luxury SUV", "4.0L V8 Biturbo", "Automatic", "5 Seats", "2hrs: R3,000"]
   },
