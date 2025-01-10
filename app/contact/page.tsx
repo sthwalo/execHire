@@ -104,11 +104,11 @@ export default function Contact() {
           </div>
           <div>
             <h3 className="font-semibold mb-2">Address</h3>
-            <p className="text-muted-foreground">123 Luxury Lane, London, UK</p>
+            <p className="text-muted-foreground">Copperleaf Estate, Morfontaine Street, Centurion, South Africa</p>
           </div>
           <div>
             <h3 className="font-semibold mb-2">Phone</h3>
-            <p className="text-muted-foreground">+44 (0) 123 456 7890</p>
+            <p className="text-muted-foreground">+27 (0) 73 336 6385</p>
           </div>
           <div>
             <h3 className="font-semibold mb-2">Email</h3>

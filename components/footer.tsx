@@ -29,9 +29,11 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Contact Info</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>123 Luxury Lane</li>
-              <li>London, UK</li>
-              <li>+44 (0) 123 456 7890</li>
+              <li>Copperleaf Estate</li>
+              <li>Morfontaine Street</li>
+              <li>Centurion</li>
+              <li>South Africa</li>
+              <li>+27 (0)73 336 6385 </li>
               <li>info@execuhire.com</li>
             </ul>
           </div>
@@ -47,7 +49,7 @@ export function Footer() {
         </div>
         
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} ExecuHire. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Global Hope Consortium. All rights reserved.</p>
         </div>
       </div>
     </footer>
