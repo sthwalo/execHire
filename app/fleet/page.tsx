@@ -126,8 +126,8 @@ export default function Fleet() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {cars.map((car, index) => (
-          <div key={index} className="group relative overflow-hidden rounded-lg shadow-lg">
-            <div className="relative aspect-[16/9]">
+          <div key={index} className="group bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="relative aspect-[16/9] overflow-hidden">
               <Image
                 src={car.image}
                 alt={car.name}
@@ -136,26 +136,26 @@ export default function Fleet() {
                 priority={index < 2}
               />
             </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
-              <div className="text-white space-y-3">
+            <div className="p-6 space-y-4">
+              <div className="space-y-2">
                 <h3 className="text-xl font-semibold">{car.name}</h3>
-                <p className="text-sm font-semibold">Starting from {car.price}</p>
-                <ul className="text-sm space-y-1 mb-4">
-                  {car.specs.map((spec, index) => (
-                    <li key={index} className="text-gray-200">
-                      {spec}
-                    </li>
-                  ))}
-                </ul>
-                <a
-                  href={createWhatsAppLink(car.name)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full block"
-                >
-                  <Button className="w-full">Book Now</Button>
-                </a>
+                <p className="text-sm font-semibold text-primary">Starting from {car.price}</p>
               </div>
+              <ul className="text-sm space-y-2">
+                {car.specs.map((spec, index) => (
+                  <li key={index} className="text-muted-foreground">
+                    • {spec}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href={createWhatsAppLink(car.name)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block mt-4"
+              >
+                <Button className="w-full">Book Now</Button>
+              </a>
             </div>
           </div>
         ))}
