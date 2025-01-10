@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Car, Menu, X } from 'lucide-react';
+import { Car, Menu, X, Instagram } from 'lucide-react';
 
 const routes = [
   { name: 'Home', path: '/' },
@@ -29,7 +29,6 @@ const socialMediaLinks = [
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="lucide lucide-brand-tiktok"
       >
         <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
       </svg>
@@ -37,25 +36,8 @@ const socialMediaLinks = [
     ariaLabel: 'Follow us on TikTok'
   },
   {
-    href: 'https://www.instagram.com/execuhire?igsh=MThjc3pleG1sMW0z&utm_source=qr', 
-    label: (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="lucide lucide-instagram"
-      >
-        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-      </svg>
-    ),
+    href: 'https://www.instagram.com/execuhire',
+    label: <Instagram className="h-5 w-5" />,
     ariaLabel: 'Follow us on Instagram'
   }
 ];

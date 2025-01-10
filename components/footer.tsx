@@ -1,4 +1,4 @@
-import { Car } from 'lucide-react';
+import { Car, Instagram } from 'lucide-react';
 import Link from 'next/link';
 
 export function Footer() {
@@ -67,34 +67,18 @@ export function Footer() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="lucide lucide-brand-tiktok"
                 >
                   <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
                 </svg>
               </a>
               <a
-                href="https://www.instagram.com/execuhire?igsh=MThjc3pleG1sMW0z&utm_source=qr"
+                href="https://www.instagram.com/execuhire"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
                 aria-label="Follow us on Instagram"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-instagram"
-                >
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                </svg>
+                <Instagram className="h-5 w-5" />
               </a>
             </div>
           </div>
