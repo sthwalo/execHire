@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Car, Shield, Clock, Award } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { createWhatsAppLink } from '@/lib/whatsapp';
 
 export default function Home() {
   return (
@@ -9,7 +10,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center">
         <Image
-          src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80"
+          src="/images/fleet/urus.avif"
           alt="Luxury Car"
           fill
           className="object-cover"
@@ -105,11 +106,19 @@ export default function Home() {
                     priority={index === 0}
                   />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
-                  <div className="text-white">
-                    <h3 className="text-xl font-semibold mb-2">{car.name}</h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex flex-col justify-end p-6">
+                  <div className="text-white space-y-2">
+                    <h3 className="text-xl font-semibold">{car.name}</h3>
                     <p className="text-sm mb-1">{car.shortDesc}</p>
-                    <p className="text-sm font-semibold">Starting from {car.price}</p>
+                    <p className="text-sm font-semibold mb-3">Starting from {car.price}</p>
+                    <a
+                      href={createWhatsAppLink(car.name)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block w-full"
+                    >
+                      <Button className="w-full">Book Now</Button>
+                    </a>
                   </div>
                 </div>
               </div>

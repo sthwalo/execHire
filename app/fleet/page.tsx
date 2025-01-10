@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { createWhatsAppLink } from '@/lib/whatsapp';
 import Link from 'next/link';
 
 const cars = [
@@ -138,9 +139,16 @@ export default function Fleet() {
                   </li>
                 ))}
               </ul>
-              <Link href={`/contact?car=${encodeURIComponent(car.name)}`}>
-                <Button className="w-full">Book Now</Button>
-              </Link>
+              <div className="mt-4">
+                <a
+                  href={createWhatsAppLink(car.name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                >
+                  <Button className="w-full">Book Now</Button>
+                </a>
+              </div>
             </div>
           </div>
         ))}

@@ -43,7 +43,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>Monday - Friday: 9am - 6pm</li>
               <li>Saturday: 10am - 4pm</li>
-              <li>Sunday: Closed</li>
+              <li>Sunday: By Appointment</li>
             </ul>
           </div>
         </div>
