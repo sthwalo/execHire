@@ -15,6 +15,51 @@ const routes = [
   { name: 'Contact', path: '/contact' },
 ];
 
+const socialMediaLinks = [
+  {
+    href: 'https://www.tiktok.com/@execuhire?_t=ZM-8swb42mNWGU&_r=1',
+    label: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="lucide lucide-brand-tiktok"
+      >
+        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+      </svg>
+    ),
+    ariaLabel: 'Follow us on TikTok'
+  },
+  {
+    href: '#', 
+    label: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="lucide lucide-instagram"
+      >
+        <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+        <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+      </svg>
+    ),
+    ariaLabel: 'Follow us on Instagram'
+  }
+];
+
 export function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -55,6 +100,19 @@ export function Navigation() {
           <Link href="/contact">
             <Button>Book Now</Button>
           </Link>
+          <div className="flex items-center gap-6">
+            {socialMediaLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
         </nav>
 
         <Button
@@ -86,6 +144,19 @@ export function Navigation() {
               <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
                 <Button className="w-full">Book Now</Button>
               </Link>
+              <div className="flex items-center gap-4 pt-4">
+                {socialMediaLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
             </nav>
           </div>
         )}
