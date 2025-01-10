@@ -116,9 +116,15 @@ const cars = [
 
 export default function Fleet() {
   return (
-    <div className="container py-16">
-      <h1 className="text-4xl font-bold mb-8">Our Fleet</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="container py-12">
+      <div className="text-center space-y-4 mb-12">
+        <h1 className="text-4xl font-bold">Our Luxury Fleet</h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Experience luxury and performance with our exclusive collection of premium vehicles
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {cars.map((car, index) => (
           <div key={index} className="border rounded-lg overflow-hidden">
             <div className="relative h-48">
