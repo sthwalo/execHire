@@ -28,7 +28,11 @@ export async function POST(request: NextRequest, res: any) {
         name: body.name,
         image: body.image,
         price: body.price,
+        pricePerDay: body.pricePerDay,
         specs: body.specs,
+        description: body.description,
+        category: body.category,
+        available: body.available ?? true,
       },
     });
 

@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { ConsentButton } from '@/components/ui/consent-button';
 import { JobDetails } from '@/components/job/job-details';
-import { getJobById } from '@/lib/jobs';
+import { getJob } from '@/lib/jobs';
 
 interface JobPageProps {
   params: {
@@ -13,7 +13,7 @@ interface JobPageProps {
 export async function generateMetadata({
   params,
 }: JobPageProps): Promise<Metadata> {
-  const job = await getJobById(params.jobId);
+  const job = await getJob(params.jobId);
 
   if (!job) {
     return {
@@ -28,7 +28,7 @@ export async function generateMetadata({
 }
 
 export default async function JobPage({ params }: JobPageProps) {
-  const job = await getJobById(params.jobId);
+  const job = await getJob(params.jobId);
 
   if (!job) {
     notFound();
