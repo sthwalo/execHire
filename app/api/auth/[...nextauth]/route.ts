@@ -76,10 +76,17 @@ export const authOptions: AuthOptions = {
     }
   },
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
     signIn: "/login",
+  },
+  events: {
+    async signOut({ token }) {
+      // Perform any cleanup here if needed
+      // This will run in the background and won't block the sign-out process
+    }
   }
 };
 

@@ -52,6 +52,18 @@ export function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const { data: session } = useSession();
+  const [isSigningOut, setIsSigningOut] = React.useState(false);
+
+  const handleSignOut = async () => {
+    try {
+      setIsSigningOut(true);
+      await signOut({ redirect: false });
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Sign out error:', error);
+      setIsSigningOut(false);
+    }
+  };
 
   // Handle click outside
   React.useEffect(() => {
@@ -113,10 +125,11 @@ export function Navigation() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="text-red-600 cursor-pointer"
-                  onClick={() => signOut({ callbackUrl: '/' })}
+                  onClick={handleSignOut}
+                  disabled={isSigningOut}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
+                  {isSigningOut ? 'Signing out...' : 'Sign Out'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -194,10 +207,11 @@ export function Navigation() {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-red-600 cursor-pointer"
-                      onClick={() => signOut({ callbackUrl: '/' })}
+                      onClick={handleSignOut}
+                      disabled={isSigningOut}
                     >
                       <LogOut className="h-4 w-4 mr-2" />
-                      Sign Out
+                      {isSigningOut ? 'Signing out...' : 'Sign Out'}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
