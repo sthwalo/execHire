@@ -118,7 +118,7 @@ This project is licensed under the ISC License.
 
 ## Developer
 
-Built with ❤️ by [Your Name]
+Built with ❤️ by @sthwalo Immaculate Nyoni
 
 ## Acknowledgments
 
