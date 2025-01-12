@@ -21,14 +21,7 @@ export default function Home() {
     <main>
       {/* Hero Section */}
       <section className="relative h-[80vh] flex items-center">
-        <Image
-          src="/images/hero.jpg"
-          alt="Luxury car"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black to-gray-900" />
         <div className="container relative z-10 text-white">
           <h1 className="text-5xl font-bold mb-6">
             Experience Luxury <br />
