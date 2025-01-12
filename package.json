@@ -17,6 +17,9 @@
     "prisma:studio": "prisma studio",
     "prepare": "husky install"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^5.8.0",
     "@radix-ui/react-avatar": "^1.1.2",

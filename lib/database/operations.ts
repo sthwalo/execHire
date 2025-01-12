@@ -1,3 +1,4 @@
+import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../db';
 import {
   Prisma,
@@ -11,14 +12,37 @@ import {
   Review,
   Notification
 } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime';
 
-// Vehicle Operations
-export async function getVehicles(filters?: {
+// Type definitions for operation inputs
+type VehicleFilters = {
   available?: boolean;
   category?: Category;
   priceRange?: { min: number; max: number };
-}) {
+};
+
+type BookingInput = {
+  userId: string;
+  vehicleId: string;
+  startDate: Date;
+  endDate: Date;
+  totalAmount: number | string | Decimal;
+};
+
+type PaymentInput = {
+  bookingId: string;
+  userId: string;
+  amount: number | string | Decimal;
+  stripeId: string;
+};
+
+type ReviewInput = {
+  vehicleId: string;
+  rating: number;
+  comment?: string;
+};
+
+// Vehicle Operations
+export async function getVehicles(filters?: VehicleFilters): Promise<(Vehicle & { reviews: Review[]; bookings: Booking[] })[]> {
   const where: Prisma.VehicleWhereInput = {};
   
   if (filters?.available !== undefined) {
@@ -31,8 +55,8 @@ export async function getVehicles(filters?: {
   
   if (filters?.priceRange) {
     where.pricePerDay = {
-      gte: new Decimal(filters.priceRange.min),
-      lte: new Decimal(filters.priceRange.max),
+      gte: new Decimal(filters.priceRange.min.toString()),
+      lte: new Decimal(filters.priceRange.max.toString()),
     };
   }
   
@@ -53,20 +77,14 @@ export async function getVehicles(filters?: {
 }
 
 // Booking Operations
-export async function createBooking(data: {
-  userId: string;
-  vehicleId: string;
-  startDate: Date;
-  endDate: Date;
-  totalAmount: number;
-}) {
+export async function createBooking(data: BookingInput): Promise<Booking & { vehicle: Vehicle; user: User }> {
   return prisma.booking.create({
     data: {
       userId: data.userId,
       vehicleId: data.vehicleId,
       startDate: data.startDate,
       endDate: data.endDate,
-      totalAmount: new Decimal(data.totalAmount),
+      totalAmount: new Decimal(data.totalAmount.toString()),
       status: BookingStatus.PENDING
     },
     include: {
@@ -77,17 +95,12 @@ export async function createBooking(data: {
 }
 
 // Payment Operations
-export async function processPayment(data: {
-  bookingId: string;
-  userId: string;
-  amount: number;
-  stripeId: string;
-}) {
+export async function processPayment(data: PaymentInput): Promise<Payment> {
   const payment = await prisma.payment.create({
     data: {
       bookingId: data.bookingId,
       userId: data.userId,
-      amount: new Decimal(data.amount),
+      amount: new Decimal(data.amount.toString()),
       status: PaymentStatus.COMPLETED,
       stripeId: data.stripeId
     }
@@ -102,11 +115,7 @@ export async function processPayment(data: {
 }
 
 // Review Operations
-export async function createReview(data: {
-  vehicleId: string;
-  rating: number;
-  comment?: string;
-}) {
+export async function createReview(data: ReviewInput): Promise<Review> {
   return prisma.review.create({
     data: {
       vehicleId: data.vehicleId,
@@ -117,7 +126,7 @@ export async function createReview(data: {
 }
 
 // Notification Operations
-export async function getUserNotifications(userId: string) {
+export async function getUserNotifications(userId: string): Promise<Notification[]> {
   return prisma.notification.findMany({
     where: {
       userId,
@@ -129,7 +138,7 @@ export async function getUserNotifications(userId: string) {
   });
 }
 
-export async function markNotificationAsRead(id: string) {
+export async function markNotificationAsRead(id: string): Promise<Notification> {
   return prisma.notification.update({
     where: { id },
     data: { read: true }
@@ -137,7 +146,11 @@ export async function markNotificationAsRead(id: string) {
 }
 
 // Analytics Operations
-export async function getBookingAnalytics(startDate: Date, endDate: Date) {
+export async function getBookingAnalytics(startDate: Date, endDate: Date): Promise<{
+  totalBookings: number;
+  totalRevenue: Decimal;
+  bookingsByCategory: Record<Category, number>;
+}> {
   const bookings = await prisma.booking.findMany({
     where: {
       createdAt: {
@@ -152,14 +165,14 @@ export async function getBookingAnalytics(startDate: Date, endDate: Date) {
   });
 
   const totalBookings = bookings.length;
-  const totalRevenue = bookings.reduce((acc, booking) => {
+  const totalRevenue = bookings.reduce((acc: { add: (arg0: any) => any; }, booking: { payment: { status: string; }; totalAmount: any; }) => {
     if (booking.payment?.status === PaymentStatus.COMPLETED) {
       return acc.add(booking.totalAmount);
     }
     return acc;
   }, new Decimal(0));
 
-  const bookingsByCategory = bookings.reduce((acc, booking) => {
+  const bookingsByCategory = bookings.reduce((acc: { [x: string]: any; }, booking: { vehicle: { category: any; }; }) => {
     const category = booking.vehicle.category;
     acc[category] = (acc[category] || 0) + 1;
     return acc;
