@@ -38,53 +38,61 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  return withValidation(registerSchema, async (request: NextRequest) => {
+  try {
+    const body = await request.json();
+
+    // Validate request body
     try {
-      const body = await request.json();
-
-      // Check if user with email already exists
-      const existingUser = await prisma.user.findUnique({
-        where: { email: body.email },
-      });
-
-      if (existingUser) {
-        return NextResponse.json(
-          { error: 'Email already exists' },
-          { status: 400 }
-        );
-      }
-
-      // Hash password
-      const hashedPassword = await bcrypt.hash(body.password, 10);
-
-      // Create user
-      const user = await prisma.user.create({
-        data: {
-          name: body.name,
-          email: body.email,
-          password: hashedPassword,
-          role: body.role || 'USER',
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          role: true,
-        },
-      });
-
-      // Generate JWT token
-      const token = await generateToken({ sub: user.id });
-
-      return NextResponse.json({ user, token }, { status: 201 });
-    } catch (error) {
-      console.error('Failed to create user:', error);
+      await registerSchema.validate(body);
+    } catch (error: any) {
       return NextResponse.json(
-        { error: 'Failed to create user' },
-        { status: 500 }
+        { error: error.message },
+        { status: 400 }
       );
     }
-  })(request);
+
+    // Check if user with email already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: body.email },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'Email already exists' },
+        { status: 400 }
+      );
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(body.password, 10);
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        name: body.name,
+        email: body.email,
+        password: hashedPassword,
+        role: 'USER',
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    });
+
+    // Generate JWT token
+    const token = await generateToken({ sub: user.id });
+
+    return NextResponse.json({ user, token }, { status: 201 });
+  } catch (error) {
+    console.error('Failed to create user:', error);
+    return NextResponse.json(
+      { error: 'Failed to create user' },
+      { status: 500 }
+    );
+  }
 }
 
 export async function PUT(request: NextRequest) {

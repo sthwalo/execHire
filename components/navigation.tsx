@@ -79,7 +79,7 @@ export function Navigation() {
               {route.name}
             </Link>
           ))}
-          <Link href="/contact">
+          <Link href="/login">
             <Button>Book Now</Button>
           </Link>
           <div className="flex items-center gap-6">
