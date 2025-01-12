@@ -184,9 +184,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-<<<<<<< HEAD
-For support, email support@execuhire.com or join our Slack channel.
-=======
 Built with ❤️ by @sthwalo Immaculate Nyoni
 
 ## Acknowledgments
@@ -196,4 +193,3 @@ Built with ❤️ by @sthwalo Immaculate Nyoni
 - [Prisma](https://prisma.io)
 - [Tailwind CSS](https://tailwindcss.com)
 - [Shadcn UI](https://ui.shadcn.com)
->>>>>>> 17ac3e69ac42edb9b34c24b4ed2125622b5bc70d
