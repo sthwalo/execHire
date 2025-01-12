@@ -1,4 +1,6 @@
 // scripts/check-env.js
+require('dotenv').config();
+
 const requiredEnvVars = [
   'DATABASE_URL',
   'NEXTAUTH_SECRET',
@@ -9,7 +11,14 @@ const requiredEnvVars = [
 ];
 
 function checkEnvVariables() {
-  const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+  console.log('Current working directory:', process.cwd());
+  console.log('Checking environment variables...');
+  
+  const missingVars = requiredEnvVars.filter(envVar => {
+    const value = process.env[envVar];
+    console.log(`Checking ${envVar}:`, value ? 'Set' : 'Not set');
+    return !value;
+  });
   
   if (missingVars.length > 0) {
     console.error('\x1b[31mError: Missing required environment variables:\x1b[0m');
