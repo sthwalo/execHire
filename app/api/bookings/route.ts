@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getServerSession } from 'next-auth';
+import { sendBookingConfirmation } from '@/lib/email';
 
 export async function GET(request: NextRequest, res: any) {
   try {
@@ -36,13 +38,21 @@ export async function GET(request: NextRequest, res: any) {
   }
 }
 
-export async function POST(request: NextRequest, res: any) {
+export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession();
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     
-    // Check if user exists
+    // Get user from session
     const user = await prisma.user.findUnique({
-      where: { id: body.userId },
+      where: { email: session.user.email! },
     });
 
     if (!user) {
@@ -104,9 +114,16 @@ export async function POST(request: NextRequest, res: any) {
       );
     }
 
+    if (!vehicle.available) {
+      return NextResponse.json(
+        { error: 'Vehicle is not available for booking' },
+        { status: 400 }
+      );
+    }
+
     if (vehicle.bookings.length > 0) {
       return NextResponse.json(
-        { error: 'Vehicle is not available for the selected dates' },
+        { error: 'Vehicle is already booked for these dates' },
         { status: 400 }
       );
     }
@@ -115,40 +132,49 @@ export async function POST(request: NextRequest, res: any) {
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     const totalAmount = vehicle.pricePerDay * days;
 
-    // Create booking with transaction to ensure data consistency
-    const booking = await prisma.$transaction(async (tx) => {
-      const newBooking = await tx.booking.create({
-        data: {
-          userId: body.userId,
-          vehicleId: body.vehicleId,
-          startDate,
-          endDate,
-          status: 'PENDING',
-          totalAmount,
-        },
-        include: {
-          vehicle: true,
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-            },
-          },
-        },
-      });
+    // Create booking
+    const booking = await prisma.booking.create({
+      data: {
+        userId: user.id,
+        vehicleId: body.vehicleId,
+        startDate,
+        endDate,
+        totalAmount,
+        status: 'PENDING',
+      },
+      include: {
+        vehicle: true,
+        user: true,
+      },
+    });
 
-      // Create pending payment record
-      await tx.payment.create({
-        data: {
-          bookingId: newBooking.id,
-          userId: body.userId,
-          amount: totalAmount,
-          status: 'PENDING',
-        },
-      });
+    // Create payment record
+    await prisma.payment.create({
+      data: {
+        bookingId: booking.id,
+        userId: user.id,
+        amount: totalAmount,
+        status: 'PENDING',
+      },
+    });
 
-      return newBooking;
+    // Send confirmation email
+    await sendBookingConfirmation({
+      customerName: user.name || 'Valued Customer',
+      customerEmail: user.email,
+      vehicleName: vehicle.name,
+      startDate: body.startDate,
+      endDate: body.endDate,
+      totalAmount,
+      bookingId: booking.id,
+    });
+
+    // Create notification
+    await prisma.notification.create({
+      data: {
+        userId: user.id,
+        message: `Your booking for ${vehicle.name} has been confirmed. Booking ID: ${booking.id}`,
+      },
     });
 
     return NextResponse.json(booking);

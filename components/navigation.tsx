@@ -5,14 +5,20 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Car, Menu, X, Instagram } from 'lucide-react';
+import { Car, Menu, X, Instagram, User, LogOut } from 'lucide-react';
+import { useSession, signIn, signOut } from 'next-auth/react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const routes = [
   { name: 'Home', path: '/' },
-  { name: 'Services', path: '/services' },
   { name: 'Fleet', path: '/fleet' },
+  { name: 'Services', path: '/services' },
   { name: 'About', path: '/about' },
-  { name: 'Contact', path: '/contact' },
 ];
 
 const socialMediaLinks = [
@@ -45,6 +51,7 @@ const socialMediaLinks = [
 export function Navigation() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const { data: session } = useSession();
 
   // Handle click outside
   React.useEffect(() => {
@@ -79,9 +86,47 @@ export function Navigation() {
               {route.name}
             </Link>
           ))}
-          <Link href="/login">
-            <Button>Book Now</Button>
-          </Link>
+          
+          {session ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative">
+                  <User className="h-5 w-5" />
+                  <span className="ml-2">{session.user?.name || 'Account'}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link href="/book" className="w-full">
+                    Book a Vehicle
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="w-full">
+                    Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile?tab=bookings" className="w-full">
+                    My Bookings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-red-600 cursor-pointer"
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button onClick={() => signIn()} className="flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Sign In
+            </Button>
+          )}
+
           <div className="flex items-center gap-6">
             {socialMediaLinks.map((link) => (
               <a
@@ -123,9 +168,44 @@ export function Navigation() {
                   {route.name}
                 </Link>
               ))}
-              <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
-                <Button className="w-full">Book Now</Button>
-              </Link>
+              {session ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative w-full">
+                      <User className="h-5 w-5" />
+                      <span className="ml-2">{session.user?.name || 'Account'}</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem asChild>
+                      <Link href="/book" className="w-full">
+                        Book a Vehicle
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="w-full">
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile?tab=bookings" className="w-full">
+                        My Bookings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-red-600 cursor-pointer"
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button onClick={() => signIn()} className="w-full">
+                  Sign In
+                </Button>
+              )}
               <div className="flex items-center gap-4 pt-4">
                 {socialMediaLinks.map((link) => (
                   <a

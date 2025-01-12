@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { setSelectedVehicle, setBookingDates, setCurrentBooking } from '@/src/store/features/booking/bookingSlice';
 import { Button } from "@/components/ui/button";
@@ -23,17 +23,12 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { format, differenceInDays } from "date-fns";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-
-const vehicles = [
-  { id: '1', name: 'Mercedes-Benz S-Class', price: '1200' },
-  { id: '2', name: 'BMW 7 Series', price: '1100' },
-  { id: '3', name: 'Audi A8', price: '1000' },
-  { id: '4', name: 'Rolls-Royce Ghost', price: '2000' },
-];
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent } from "@/components/ui/card";
 
 const formSchema = z.object({
   vehicleId: z.string({
@@ -50,43 +45,124 @@ const formSchema = z.object({
   path: ["endDate"],
 });
 
+type Vehicle = {
+  id: string;
+  name: string;
+  price: string;
+  pricePerDay: number;
+  image: string;
+  category: string;
+  description: string;
+  available: boolean;
+};
+
 export function BookingForm() {
   const dispatch = useAppDispatch();
-  const { selectedVehicle, bookingDates } = useAppSelector((state) => state.booking);
+  const { toast } = useToast();
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedDates, setSelectedDates] = useState<{
+    startDate: Date | null;
+    endDate: Date | null;
+  }>({
+    startDate: null,
+    endDate: null,
+  });
+  const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    const { vehicleId, startDate, endDate } = values;
-    
-    dispatch(setSelectedVehicle(vehicleId));
-    dispatch(setBookingDates({
-      startDate: format(startDate, 'yyyy-MM-dd'),
-      endDate: format(endDate, 'yyyy-MM-dd'),
-    }));
+  // Fetch vehicles from the API
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await fetch('/api/vehicles');
+        const data = await response.json();
+        setVehicles(data.filter((v: Vehicle) => v.available));
+      } catch (error) {
+        console.error('Failed to fetch vehicles:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load vehicles. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    };
+    fetchVehicles();
+  }, [toast]);
 
-    // Create a new booking
-    dispatch(setCurrentBooking({
-      id: Math.random().toString(36).substr(2, 9),
-      serviceType: 'vehicle-rental',
-      date: format(startDate, 'yyyy-MM-dd'),
-      time: '10:00',
-      status: 'pending',
-      location: 'Main Branch'
-    }));
+  // Calculate total price when dates or vehicle changes
+  useEffect(() => {
+    const values = form.getValues();
+    if (values.startDate && values.endDate && values.vehicleId) {
+      const vehicle = vehicles.find(v => v.id === values.vehicleId);
+      if (vehicle) {
+        const days = differenceInDays(values.endDate, values.startDate) + 1;
+        setTotalPrice(vehicle.pricePerDay * days);
+      }
+    }
+  }, [form.watch(['startDate', 'endDate', 'vehicleId']), vehicles]);
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
+    try {
+      const { vehicleId, startDate, endDate } = values;
+      const vehicle = vehicles.find(v => v.id === vehicleId);
+      
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          vehicleId,
+          startDate: format(startDate, 'yyyy-MM-dd'),
+          endDate: format(endDate, 'yyyy-MM-dd'),
+          totalAmount: totalPrice,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create booking');
+      }
+
+      const booking = await response.json();
+      
+      dispatch(setSelectedVehicle(vehicleId));
+      dispatch(setBookingDates({
+        startDate: format(startDate, 'yyyy-MM-dd'),
+        endDate: format(endDate, 'yyyy-MM-dd'),
+      }));
+      dispatch(setCurrentBooking({
+        id: booking.id,
+        serviceType: 'vehicle-rental',
+        date: format(startDate, 'yyyy-MM-dd'),
+        time: '10:00',
+        status: 'pending',
+        location: 'Main Branch'
+      }));
+
+      toast({
+        title: 'Success',
+        description: 'Your booking has been confirmed! Check your email for details.',
+      });
+
+    } catch (error) {
+      console.error('Booking failed:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to create booking. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6 space-y-8">
-      <div className="space-y-2">
-        <h2 className="text-3xl font-bold">Book Your Luxury Vehicle</h2>
-        <p className="text-muted-foreground">
-          Select your preferred vehicle and booking dates
-        </p>
-      </div>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -104,7 +180,12 @@ export function BookingForm() {
                   <SelectContent>
                     {vehicles.map((vehicle) => (
                       <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {vehicle.name} - ${vehicle.price}/day
+                        <div className="flex justify-between items-center w-full">
+                          <span>{vehicle.name}</span>
+                          <span className="text-muted-foreground">
+                            ${vehicle.pricePerDay}/day
+                          </span>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -146,7 +227,7 @@ export function BookingForm() {
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) =>
-                          date < new Date()
+                          date < new Date() || date < new Date("1900-01-01")
                         }
                         initialFocus
                       />
@@ -188,7 +269,7 @@ export function BookingForm() {
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={(date) =>
-                          date < new Date()
+                          date < new Date() || date < new Date("1900-01-01")
                         }
                         initialFocus
                       />
@@ -200,8 +281,31 @@ export function BookingForm() {
             />
           </div>
 
-          <Button type="submit" className="w-full">
-            Book Now
+          {totalPrice > 0 && (
+            <Card className="mt-4">
+              <CardContent className="pt-6">
+                <div className="flex justify-between items-center">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium">Total Price</p>
+                    <p className="text-sm text-muted-foreground">
+                      Including all taxes and fees
+                    </p>
+                  </div>
+                  <p className="text-2xl font-bold">${totalPrice}</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing
+              </>
+            ) : (
+              'Confirm Booking'
+            )}
           </Button>
         </form>
       </Form>
