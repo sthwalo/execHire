@@ -4,7 +4,7 @@ First off, thank you for considering contributing to ExecuHire! It's people like
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code.
+This project and everyone participating in it is governed by the ExecuHire Code of Conduct. By participating, you are expected to uphold this code.
 
 ## How Can I Contribute?
 
@@ -17,7 +17,7 @@ Before creating bug reports, please check the issue list as you might find out t
 * Provide specific examples to demonstrate the steps
 * Describe the behavior you observed after following the steps
 * Explain which behavior you expected to see instead and why
-* Include screenshots if possible
+* Include screenshots and animated GIFs if possible
 
 ### Suggesting Enhancements
 
@@ -33,53 +33,20 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 * Fill in the required template
 * Do not include issue numbers in the PR title
-* Follow the TypeScript styleguide
-* Include screenshots in your pull request whenever possible
+* Include screenshots and animated GIFs in your pull request whenever possible
+* Follow the TypeScript and React styleguides
+* Include thoughtfully-worded, well-structured tests
+* Document new code
 * End all files with a newline
-* Avoid platform-dependent code
 
 ## Development Process
 
 1. Fork the repo
-2. Create a new branch from `main`
+2. Create a new branch (git checkout -b feature/your-feature)
 3. Make your changes
-4. Run the tests
-5. Push to your fork and submit a pull request
-
-### Setup Development Environment
-
-```bash
-# Clone your fork
-git clone https://github.com/your-username/execuhire.git
-
-# Add upstream remote
-git remote add upstream https://github.com/original/execuhire.git
-
-# Install dependencies
-npm install
-
-# Copy environment variables
-cp .env.example .env
-
-# Setup database
-npx prisma migrate dev
-
-# Run development server
-npm run dev
-```
-
-### Testing
-
-```bash
-# Run all tests
-npm test
-
-# Run specific test file
-npm test -- path/to/test-file.test.ts
-
-# Run tests in watch mode
-npm test -- --watch
-```
+4. Commit your changes (git commit -am 'Add some feature')
+5. Push to the branch (git push origin feature/your-feature)
+6. Create a new Pull Request
 
 ## Styleguides
 
@@ -92,35 +59,155 @@ npm test -- --watch
 
 ### TypeScript Styleguide
 
-* Use TypeScript for all files
-* Use interface over type when possible
-* Use async/await over promises
-* Use const assertions for literals
-* Use optional chaining and nullish coalescing
-* Follow the existing code style
+* Use TypeScript for all new code
+* Prefer interfaces over type aliases
+* Use explicit type annotations
+* Avoid using `any`
+* Use functional components with hooks
+* Implement proper error handling
 
-### Documentation Styleguide
+```typescript
+// Good
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
-* Use [Markdown](https://guides.github.com/features/mastering-markdown/)
-* Reference methods and classes in markdown with backticks
-* Use code blocks for examples
+const UserComponent: React.FC<{ user: User }> = ({ user }) => {
+  return <div>{user.name}</div>;
+};
 
-## Additional Notes
+// Bad
+type User = any;
 
-### Issue and Pull Request Labels
+function UserComponent(props) {
+  return <div>{props.user.name}</div>;
+}
+```
 
-This section lists the labels we use to help us track and manage issues and pull requests.
+### React Styleguide
 
-* `bug` - Issues for bugs in the code
-* `documentation` - Issues for improving or updating documentation
-* `enhancement` - Issues for new features or improvements
-* `good first issue` - Good for newcomers
-* `help wanted` - Extra attention is needed
-* `invalid` - Issues that are invalid or non-relevant
-* `question` - Further information is requested
+* Use functional components
+* Use hooks for state and side effects
+* Keep components small and focused
+* Use proper prop types
+* Implement error boundaries
+* Use meaningful component names
 
-## Recognition
+```typescript
+// Good
+const BookingForm: React.FC<BookingFormProps> = ({ onSubmit, initialData }) => {
+  const [formData, setFormData] = useState(initialData);
 
-Contributors who have made significant contributions will be recognized in our README.md file.
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSubmit(formData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Form fields */}
+    </form>
+  );
+};
+
+// Bad
+function Form(props) {
+  let data = props.data;
+  return <form>{/* Form fields */}</form>;
+}
+```
+
+### Testing Styleguide
+
+* Write meaningful test descriptions
+* Test component behavior, not implementation
+* Use React Testing Library
+* Mock external dependencies
+* Test error cases
+
+```typescript
+// Good
+describe('BookingForm', () => {
+  it('should submit form data when valid', async () => {
+    const onSubmit = jest.fn();
+    render(<BookingForm onSubmit={onSubmit} />);
+    
+    // Test implementation
+  });
+});
+
+// Bad
+describe('form', () => {
+  it('works', () => {
+    // Vague test implementation
+  });
+});
+```
+
+## Project Structure
+
+```
+execuHire/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── (auth)/            # Auth-related pages
+│   └── components/        # Shared components
+├── components/            # Global components
+├── lib/                   # Utility functions
+├── prisma/                # Database schema
+└── src/                   # Source files
+    ├── services/          # API services
+    └── store/             # Redux store
+```
+
+## Setting Up Development Environment
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Set up environment variables:
+```bash
+cp .env.example .env
+```
+
+3. Set up the database:
+```bash
+npx prisma generate
+npx prisma db push
+npx prisma db seed
+```
+
+4. Start development server:
+```bash
+npm run dev
+```
+
+## Review Process
+
+* All submissions require review
+* Changes will be merged after approval
+* Reviewers will look for:
+  * Code quality and style
+  * Test coverage
+  * Documentation
+  * Performance implications
+  * Security considerations
+
+## Community
+
+* Join our [Discord](https://discord.gg/execuhire)
+* Follow us on [Twitter](https://twitter.com/execuhire)
+* Read our [Blog](https://blog.execuhire.com)
+
+## Questions?
+
+If you have any questions, please feel free to contact the maintainers:
+
+* Email: maintainers@execuhire.com
+* Discord: [ExecuHire Server](https://discord.gg/execuhire)
 
 Thank you for contributing to ExecuHire! 🚀

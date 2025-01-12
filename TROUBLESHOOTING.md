@@ -1,268 +1,206 @@
-# Troubleshooting Guide
+# ExecuHire Troubleshooting Guide
 
-This document lists common issues encountered during development and their solutions.
+This guide covers common issues you might encounter while setting up or running ExecuHire and their solutions.
 
-## Prisma Related Issues
+## Table of Contents
 
-### 1. Missing @prisma/client/runtime Module
+1. [Database Issues](#database-issues)
+2. [Authentication Issues](#authentication-issues)
+3. [Image Loading Issues](#image-loading-issues)
+4. [Booking System Issues](#booking-system-issues)
+5. [Payment Integration Issues](#payment-integration-issues)
+6. [Email Notification Issues](#email-notification-issues)
+7. [Development Server Issues](#development-server-issues)
 
-**Error Message:**
-```
-Cannot find module '@prisma/client/runtime' or its corresponding type declarations.
-```
+## Database Issues
 
-**Cause:**
-- Prisma packages were not properly installed
-- Prisma client wasn't generated after schema changes
-- Version mismatch between Prisma packages
+### Prisma Client Generation Fails
 
-**Solution:**
-1. Install correct versions of Prisma packages:
-```bash
-npm install @prisma/client@5.8.0 prisma@5.8.0 --save-dev --legacy-peer-deps
-```
+**Problem**: `prisma generate` command fails
 
-2. Generate Prisma client:
-```bash
-npx prisma generate
-```
+**Solution**:
+1. Delete the `node_modules/.prisma` folder
+2. Run `npm install` again
+3. Run `npx prisma generate`
 
-3. If error persists:
-   - Restart TypeScript server in your IDE
-   - Clear TypeScript cache
-   - Reload IDE window
+### Database Connection Fails
 
-**Additional Notes:**
-- Always ensure `@prisma/client` and `prisma` versions match to avoid unexpected behavior
-- The `--legacy-peer-deps` flag might be necessary if you encounter dependency conflicts
+**Problem**: Cannot connect to the database
 
-### Dependencies Resolution
+**Solution**:
+1. Verify your DATABASE_URL in `.env`
+2. Ensure PostgreSQL is running
+3. Check database credentials
+4. Try connecting with `psql` to verify direct connection
 
-**Error:**
-Dependency conflicts when installing packages, particularly with React types and Redux.
+### Migration Issues
 
-**Solution:**
-Use the `--legacy-peer-deps` flag when installing packages:
-```bash
-npm install [package-name] --legacy-peer-deps
-```
+**Problem**: Prisma migrations fail
 
-## Prisma Type and Import Issues
+**Solution**:
+1. Reset the database: `npx prisma migrate reset`
+2. Apply migrations: `npx prisma migrate deploy`
+3. Seed the database: `npx prisma db seed`
 
-### Error: Namespace '@prisma/client' has no exported member 'VehicleWhereInput'
-**Problem**: TypeScript complaining about missing Prisma types.
-**Solution**: Import the `Prisma` namespace from `@prisma/client` and use it to access generated types:
-```typescript
-import { Prisma } from '@prisma/client';
-// Use as: Prisma.VehicleWhereInput
-```
+## Authentication Issues
 
-### Error: Cannot find Decimal from Prisma
-**Problem**: Using `Prisma.Decimal` causes type errors after moving `@prisma/client` to devDependencies.
-**Solution**: Import `Decimal` directly from Prisma runtime:
-```typescript
-import { Decimal } from '@prisma/client/runtime';
-// Use as: new Decimal(value)
-```
+### NextAuth Session Not Working
 
-### Error: Database Migration Lock
-**Problem**: Prisma migrations failing with lock timeout error:
-```
-Error: P1002 - The database server at localhost:5432 was reached but timed out
-Context: Timed out trying to acquire a postgres advisory lock
-```
-**Solution**: 
-1. Clear existing locks:
-```sql
-SELECT pg_advisory_unlock_all();
-```
-2. Use `prisma db push` instead of migrations for development:
-```bash
-npx prisma db push
-```
+**Problem**: User remains unauthenticated after login
 
-### Dependency Location
-**Problem**: `@prisma/client` should not be in devDependencies as it's needed at runtime.
-**Solution**: Move `@prisma/client` back to regular dependencies in `package.json`:
-```json
-{
-  "dependencies": {
-    "@prisma/client": "^5.8.0"
-    // ... other dependencies
-  }
-}
-```
+**Solution**:
+1. Verify NEXTAUTH_SECRET in `.env`
+2. Check NEXTAUTH_URL matches your development URL
+3. Clear browser cookies and try again
+4. Verify session callback in `[...nextauth]/route.ts`
 
-## Next.js Routing Issues
+### Admin Access Issues
 
-### Error: 404 - This page could not be found
-**Problem**: Next.js showing default 404 page instead of a custom one.
-**Solution**: Create a custom `not-found.tsx` page in the app directory:
-```typescript
-// app/not-found.tsx
-export default function NotFound() {
-  return (
-    <div>
-      <h1>404 - Page Not Found</h1>
-      <p>Sorry, we couldn't find the page you're looking for.</p>
-      <Link href="/">Back to Home</Link>
-    </div>
-  );
-}
-```
+**Problem**: Cannot access admin routes
 
-**Note**: Make sure all your route segments have corresponding page.tsx files in the app directory structure:
-```
-app/
-  page.tsx           # Home page (/)
-  about/
-    page.tsx         # About page (/about)
-  services/
-    page.tsx         # Services page (/services)
-  fleet/
-    page.tsx         # Fleet page (/fleet)
-  contact/
-    page.tsx         # Contact page (/contact)
-  not-found.tsx      # Custom 404 page
-```
-
-## Next.js App Issues
-
-### Error: Blank Page in Browser
-**Problem**: The app shows a blank page with no visible content.
-**Solution**: Check the following common causes:
-
-1. **Redux Store Setup**:
-   ```typescript
-   // src/store/provider.tsx
-   'use client';
-   import { Provider } from 'react-redux';
-   import { store } from './store';
-   
-   export function ReduxProvider({ children }) {
-     return <Provider store={store}>{children}</Provider>;
-   }
-   ```
-
-2. **Next.js Configuration**:
-   ```javascript
-   // next.config.js
-   const nextConfig = {
-     images: {
-       domains: ['images.unsplash.com'],
-     },
-     // Remove experimental.serverActions as it's now default
-   }
-   ```
-
-3. **Component Error Boundaries**:
-   ```typescript
-   'use client';
-   import { ErrorBoundary } from 'react-error-boundary';
-   
-   function ErrorFallback({ error }) {
-     return (
-       <div>
-         <h2>Something went wrong:</h2>
-         <pre>{error.message}</pre>
-       </div>
-     );
-   }
-   
-   export function SafeComponent({ children }) {
-     return (
-       <ErrorBoundary FallbackComponent={ErrorFallback}>
-         {children}
-       </ErrorBoundary>
-     );
-   }
-   ```
-
-4. **Check Console Errors**: Open browser developer tools (F12) to check for JavaScript errors.
-
-5. **Verify API Routes**: Ensure API routes are working and returning expected data:
-   ```typescript
-   // Add error handling to API calls
-   try {
-     const response = await fetch('/api/vehicles');
-     if (!response.ok) throw new Error('API request failed');
-     const data = await response.json();
-   } catch (error) {
-     console.error('Error fetching data:', error);
-   }
-   ```
+**Solution**:
+1. Verify user role in database
+2. Check middleware configuration
+3. Clear browser cache and cookies
+4. Re-login as admin
 
 ## Image Loading Issues
 
-### Error: The requested resource isn't a valid image
-**Problem**: Next.js Image component failing to load images from the public directory.
-**Solution**: 
-1. Ensure the image exists in the correct location:
-   ```
-   public/
-     images/
-       hero.jpg
-       logo.png
-       fleet/
-         car1.jpg
-         car2.jpg
-   ```
+### Images Not Loading
 
-2. Use the correct path in the Image component:
-   ```tsx
-   import Image from 'next/image';
+**Problem**: Vehicle images fail to load
 
-   // Correct usage
-   <Image 
-     src="/images/hero.jpg"  // starts from public directory
-     alt="Hero image"
-     width={1920}
-     height={1080}
-   />
-   ```
+**Solution**:
+1. Verify image paths in seed data
+2. Check Next.js image configuration
+3. Ensure images are in the correct format (.avif)
+4. Clear browser cache
 
-3. For local development, place actual images in the public directory:
-   ```bash
-   mkdir -p public/images
-   # Then copy your images to public/images/
-   ```
+### Image Optimization Errors
 
-4. For README.md files, use the full path including 'public':
-   ```markdown
-   ![Image Alt](public/images/hero.jpg)
-   ```
+**Problem**: Next.js image optimization fails
 
-## Missing Dependencies
+**Solution**:
+1. Add image domains to `next.config.js`
+2. Use proper image dimensions
+3. Add `unoptimized` prop for local images
+4. Verify image file permissions
 
-### Error: Module not found: Can't resolve 'next-themes'
-**Problem**: The theme provider component requires the `next-themes` package which is not installed.
-**Solution**: Install the package using npm:
-```bash
-npm install next-themes --legacy-peer-deps
-```
+## Booking System Issues
 
-### Error: Module not found: Can't resolve '@radix-ui/react-slot'
-**Problem**: UI components require Radix UI primitives and class-variance-authority for styling.
-**Solution**: Install the required packages:
-```bash
-npm install @radix-ui/react-slot class-variance-authority --legacy-peer-deps
-```
+### Booking Creation Fails
 
-**Note**: When using shadcn/ui components, you might need to install additional Radix UI packages. Common ones include:
-```bash
-npm install @radix-ui/react-dialog @radix-ui/react-dropdown-menu @radix-ui/react-navigation-menu @radix-ui/react-avatar --legacy-peer-deps
-```
+**Problem**: Cannot create new bookings
 
-## Best Practices
+**Solution**:
+1. Check user authentication status
+2. Verify vehicle availability
+3. Validate date range selection
+4. Check API response in browser console
 
-1. **After Schema Changes:**
-   - Always run `npx prisma generate` after making changes to your Prisma schema
-   - This ensures your Prisma client is in sync with your schema
+### Calendar Issues
 
-2. **Version Management:**
-   - Keep `@prisma/client` and `prisma` versions in sync
-   - Check package versions when encountering unexpected behavior
+**Problem**: Date picker not working correctly
 
-3. **IDE Integration:**
-   - Restart TypeScript server after major dependency changes
-   - Reload IDE window if type definitions aren't updating
+**Solution**:
+1. Clear browser cache
+2. Update date-fns package
+3. Check date format consistency
+4. Verify timezone settings
+
+## Payment Integration Issues
+
+### Payment Processing Fails
+
+**Problem**: Cannot process payments
+
+**Solution**:
+1. Verify payment provider credentials
+2. Check webhook configuration
+3. Validate payment amount calculation
+4. Monitor payment provider logs
+
+### Payment Status Updates
+
+**Problem**: Payment status not updating
+
+**Solution**:
+1. Check webhook endpoints
+2. Verify database transaction handling
+3. Monitor payment webhooks
+4. Check error logs
+
+## Email Notification Issues
+
+### Emails Not Sending
+
+**Problem**: Booking confirmation emails not received
+
+**Solution**:
+1. Verify RESEND_API_KEY
+2. Check email templates
+3. Monitor email service logs
+4. Check spam folders
+
+### Email Template Issues
+
+**Problem**: Email formatting problems
+
+**Solution**:
+1. Validate HTML templates
+2. Check dynamic content insertion
+3. Test with different email clients
+4. Verify sender domain configuration
+
+## Development Server Issues
+
+### Server Won't Start
+
+**Problem**: `npm run dev` fails
+
+**Solution**:
+1. Kill any existing Node.js processes
+2. Clear npm cache: `npm cache clean --force`
+3. Delete `node_modules` and reinstall
+4. Check for port conflicts
+
+### Hot Reload Not Working
+
+**Problem**: Changes not reflecting in development
+
+**Solution**:
+1. Restart development server
+2. Clear browser cache
+3. Check file watching settings
+4. Verify system file watchers limit
+
+## Performance Issues
+
+### Slow Page Loading
+
+**Problem**: Pages take too long to load
+
+**Solution**:
+1. Enable React Strict Mode
+2. Implement proper code splitting
+3. Optimize image loading
+4. Use React Suspense boundaries
+
+### Memory Leaks
+
+**Problem**: Application memory usage grows over time
+
+**Solution**:
+1. Check useEffect cleanup functions
+2. Monitor component unmounting
+3. Verify event listener cleanup
+4. Use React profiler to identify issues
+
+## Need More Help?
+
+If you're still experiencing issues:
+
+1. Check the [GitHub Issues](https://github.com/yourusername/execuhire/issues)
+2. Join our [Discord Community](https://discord.gg/execuhire)
+3. Contact support at support@execuhire.com
+4. Create a new issue with detailed reproduction steps

@@ -118,9 +118,11 @@ export default function Fleet() {
               <Image
                 src={car.image}
                 alt={car.name}
-                fill
+                width={800}
+                height={450}
                 className="object-cover transition-transform group-hover:scale-105"
                 priority={index < 2}
+                unoptimized
               />
             </div>
             <div className="p-6 space-y-4">

@@ -60,8 +60,10 @@ export default function FeaturedCars() {
                   <Image
                     src={vehicle.image}
                     alt={vehicle.name}
-                    fill
-                    className="object-cover"
+                    width={400}
+                    height={300}
+                    className="object-cover w-full h-full"
+                    unoptimized
                   />
                 </div>
               </CardHeader>

@@ -1,195 +1,146 @@
-# ExecuHire - Luxury Vehicle Rental Platform
+# ExecuHire - Premium Vehicle Rental Platform
 
-ExecuHire is a modern, full-stack web application for luxury vehicle rentals, built with cutting-edge technologies and best practices in software development.
+ExecuHire is a modern, full-stack vehicle rental platform built with Next.js 13, TypeScript, and Prisma. It offers a seamless experience for renting luxury vehicles with features like real-time availability, secure payments, and email notifications.
 
-## Tech Stack
+## 🚀 Features
 
-### Frontend
-- **Framework**: Next.js 14 with React 18
-- **Language**: TypeScript
-- **State Management**: Redux Toolkit with RTK Query
-- **Styling**: 
-  - Tailwind CSS for utility-first styling
-  - shadcn/ui for component library
-- **Form Handling**: React Hook Form with Zod validation
+- **Authentication & Authorization**
+  - Secure user authentication with NextAuth.js
+  - Role-based access control (Admin/User)
+  - Protected API routes and admin dashboard
 
-### Backend
-- **Runtime**: Node.js
-- **API**: Next.js API Routes
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: JWT with NextAuth.js
-- **Payment Processing**: Stripe Integration
+- **Vehicle Management**
+  - Real-time vehicle availability tracking
+  - Dynamic pricing based on duration
+  - Comprehensive vehicle details and specifications
+  - Image galleries and video showcases
 
-### Testing
-- **Framework**: Jest
-- **Testing Library**: React Testing Library
-- **E2E Testing**: Cypress (planned)
+- **Booking System**
+  - Interactive booking calendar
+  - Real-time availability checks
+  - Automated confirmation emails
+  - Booking history and status tracking
 
-## Project Structure
+- **Payment Integration**
+  - Secure payment processing
+  - Multiple payment methods
+  - Automated payment receipts
+  - Payment status tracking
 
-```
-execuHire/
-├── app/                      # Next.js 14 app directory
-│   ├── api/                  # API routes
-│   ├── (auth)/              # Authentication pages
-│   ├── (dashboard)/         # Dashboard pages
-│   └── layout.tsx           # Root layout
-├── components/              # Reusable components
-│   ├── ui/                  # UI components
-│   └── shared/             # Shared components
-├── hooks/                   # Custom React hooks
-├── lib/                     # Utility functions
-├── prisma/                  # Database schema and migrations
-│   └── schema.prisma       
-├── public/                  # Static assets
-├── src/
-│   ├── services/           # API services
-│   ├── store/              # Redux store
-│   │   ├── features/       # Redux slices
-│   │   └── hooks.ts        # Redux hooks
-│   └── types/              # TypeScript types
-├── styles/                 # Global styles
-└── tests/                 # Test files
-```
+- **User Experience**
+  - Responsive design for all devices
+  - Modern UI with Tailwind CSS
+  - Real-time notifications
+  - Interactive vehicle gallery
 
-## Key Features
+## 🛠️ Tech Stack
 
-- Browse and search luxury vehicles
-- Real-time availability checking
-- Secure payment processing
-- User authentication and authorization
-- Responsive design
-- Dark mode support
+- **Frontend**
+  - Next.js 13 (App Router)
+  - TypeScript
+  - Tailwind CSS
+  - Shadcn UI Components
+  - Redux Toolkit
 
-## Getting Started
+- **Backend**
+  - Node.js
+  - Prisma ORM
+  - PostgreSQL
+  - NextAuth.js
 
-### Prerequisites
+- **APIs & Services**
+  - REST API
+  - Resend (Email)
+  - Image Optimization
+  - Video Streaming
 
-- Node.js 18+
-- PostgreSQL
-- npm or yarn
-
-### Installation
+## 📦 Installation
 
 1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/execuHire.git
-cd execuHire
-```
+   ```bash
+   git clone https://github.com/yourusername/execuhire.git
+   cd execuhire
+   ```
 
 2. Install dependencies:
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
 
 3. Set up environment variables:
-```bash
-cp .env.example .env
-```
+   ```bash
+   cp .env.example .env
+   ```
+   Fill in your environment variables in `.env`
 
 4. Set up the database:
-```bash
-npx prisma generate
-npx prisma db push
-```
+   ```bash
+   npx prisma generate
+   npx prisma db push
+   npx prisma db seed
+   ```
 
 5. Start the development server:
-```bash
-npm run dev
-```
+   ```bash
+   npm run dev
+   ```
 
-## Architecture
-
-### OOP Concepts Implementation
-
-- **Encapsulation**: Services and components are encapsulated with clear interfaces
-- **Inheritance**: Extended base components and utilities
-- **Polymorphism**: Generic components with variant support
-- **Abstraction**: Service layer abstracting API calls
-
-### State Management
-
-- **Redux Store Structure**:
-  - features/
-    - booking/
-    - vehicle/
-    - user/
-  - Async thunks for API calls
-  - Type-safe actions and reducers
-
-### API Services
-
-- Class-based service implementation
-- Proper error handling
-- Request/response interceptors
-- Type-safe API calls
-
-## Development Workflow
-
-1. **Feature Development**:
-   - Create feature branch
-   - Implement changes
-   - Write tests
-   - Submit PR
-
-2. **Testing**:
-   - Unit tests for utilities and hooks
-   - Integration tests for components
-   - E2E tests for critical flows
-
-3. **Code Quality**:
-   - ESLint for code linting
-   - Prettier for code formatting
-   - Husky for pre-commit hooks
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## Environment Variables
-
-Required environment variables:
+## 🔧 Environment Variables
 
 ```env
 # Database
 DATABASE_URL="postgresql://user:password@localhost:5432/execuhire"
 
-# NextAuth.js
+# NextAuth
+NEXTAUTH_SECRET="your-nextauth-secret"
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key"
 
-# Stripe
-STRIPE_SECRET_KEY="your-stripe-secret-key"
-STRIPE_WEBHOOK_SECRET="your-stripe-webhook-secret"
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="your-stripe-publishable-key"
+# Email (Resend)
+RESEND_API_KEY="re_xxxx_your_api_key_here"
 ```
 
-## Scripts
+## 📚 Documentation
 
-- `npm run dev`: Start development server
-- `npm run build`: Build for production
-- `npm start`: Start production server
-- `npm test`: Run tests
-- `npm run lint`: Run linter
-- `npm run prisma:generate`: Generate Prisma client
-- `npm run prisma:migrate`: Run database migrations
+- [API Documentation](docs/api.md)
+- [Contributing Guide](CONTRIBUTING.md)
+- [Troubleshooting](TROUBLESHOOTING.md)
 
-## License
+## 🧪 Testing
+
+Run the test suite:
+```bash
+npm test
+```
+
+Run e2e tests:
+```bash
+npm run test:e2e
+```
+
+## 🚀 Deployment
+
+1. Build the application:
+   ```bash
+   npm run build
+   ```
+
+2. Start the production server:
+   ```bash
+   npm start
+   ```
+
+## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Support
+## 👥 Contributing
 
-Built with ❤️ by @sthwalo Immaculate Nyoni
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-## Acknowledgments
+## 🐛 Bug Reports
 
-- [Next.js Team](https://nextjs.org)
-- [Vercel](https://vercel.com)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [Shadcn UI](https://ui.shadcn.com)
+If you discover any bugs, please create an issue in the [issue tracker](https://github.com/yourusername/execuhire/issues).
+
+## 📞 Support
+
+For support, email support@execuhire.com or join our Slack channel.
