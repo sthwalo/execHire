@@ -5,126 +5,15 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { createWhatsAppLink } from '@/lib/whatsapp';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
-import { setVehicles, setSelectedVehicle } from '@/src/store/features/vehicle/vehicleSlice';
+import { fetchVehicles, setSelectedVehicle } from '@/src/store/features/vehicle/vehicleSlice';
 import type { Vehicle } from '@/src/store/features/vehicle/vehicleSlice';
-
-const initialVehicles: Vehicle[] = [
-  {
-    name: "Lamborghini Urus",
-    image: "/images/fleet/urus.avif",
-    price: "R18,000/half-day",
-    specs: ["Premium SUV", "4.0L V8 Twin-Turbo", "Automatic", "5 Seats", "2hrs: R5,000"]
-  },
-  {
-    name: "BMW i7 740d",
-    image: "/images/fleet/i7.jpg", 
-    price: "R10,000/half-day",
-    specs: ["Luxury Sedan", "Electric/Diesel Hybrid", "Automatic", "5 Seats", "2hrs: R3,000"]
-  },
-  {
-    name: "Mercedes G63",
-    image: "/images/fleet/g63.avif",
-    price: "R10,000/half-day",
-    specs: ["Luxury SUV", "4.0L V8 Biturbo", "Automatic", "5 Seats", "2hrs: R3,000"]
-  },
-  {
-    name: "Maserati Levante",
-    image: "/images/fleet/Levante.webp",
-    price: "R8,000/half-day",
-    specs: ["Luxury SUV", "3.0L V6 Twin-Turbo", "Automatic", "5 Seats", "2hrs: R2,500"]
-  },
-  {
-    name: "Porsche Panamera GTS",
-    image: "/images/fleet/panamera.avif",
-    price: "R8,000/half-day",
-    specs: ["Sport Sedan", "4.0L V8", "PDK Auto", "4 Seats", "2hrs: R2,500"]
-  },
-  {
-    name: "Porsche 718 Boxster GTS",
-    image: "/images/fleet/boxster.jpg",
-    price: "R8,000/half-day",
-    specs: ["Sports Car", "4.0L Flat-6", "PDK Auto", "2 Seats", "2hrs: R2,500"]
-  },
-  {
-    name: "Audi RS5",
-    image: "/images/fleet/rs5.jpg",
-    price: "R8,000/half-day",
-    specs: ["Sport Coupe", "2.9L V6 Twin-Turbo", "Automatic", "4 Seats", "2hrs: R2,500"]
-  },
-  {
-    name: "Mercedes GLE 63s",
-    image: "/images/fleet/gle.avif",
-    price: "R8,000/half-day",
-    specs: ["Performance SUV", "4.0L V8 Biturbo", "Automatic", "5 Seats", "2hrs: R2,500"]
-  },
-  {
-    name: "Mercedes C63 W204",
-    image: "/images/fleet/c63.jpg",
-    price: "R8,000/half-day",
-    specs: ["Sport Sedan", "6.2L V8", "Automatic", "5 Seats", "2hrs: R2,500"]
-  },
-  {
-    name: "Mercedes V-Class 300d",
-    image: "/images/fleet/vclass.jpg",
-    price: "R8,000/half-day",
-    specs: ["Luxury Van", "2.0L Diesel", "Automatic", "7 Seats", "2hrs: R2,500"]
-  },
-  {
-    name: "Ford Mustang GT Convertible",
-    image: "/images/fleet/mustang.jpg",
-    price: "R8,000/half-day",
-    specs: ["Convertible", "5.0L V8", "Automatic", "4 Seats", "2hrs: R2,500"]
-  },
-  {
-    name: "Mercedes CLS 53",
-    image: "/images/fleet/cls53.avif",
-    price: "R8,000/half-day",
-    specs: ["Luxury Coupe", "3.0L Inline-6", "Automatic", "4 Seats", "2hrs: R2,500"]
-  },
-  {
-    name: "Mercedes GLE 400d",
-    image: "/images/fleet/gle400.jpg",
-    price: "R6,500/half-day",
-    specs: ["Luxury SUV", "3.0L Diesel", "Automatic", "5 Seats", "2hrs: R2,000"]
-  },
-  {
-    name: "Mercedes C43",
-    image: "/images/fleet/c43.webp",
-    price: "R6,500/half-day",
-    specs: ["Sport Sedan", "3.0L V6 Biturbo", "Automatic", "5 Seats", "2hrs: R2,000"]
-  },
-  {
-    name: "Mercedes GLE 350d",
-    image: "/images/fleet/gle350.avif",
-    price: "R6,000/half-day",
-    specs: ["Luxury SUV", "3.0L Diesel", "Automatic", "5 Seats", "2hrs: R2,000"]
-  },
-  {
-    name: "Range Rover Sport",
-    image: "/images/fleet/roversport.avif",
-    price: "R6,000/half-day",
-    specs: ["Luxury SUV", "3.0L V6", "Automatic", "5 Seats", "2hrs: R2,000"]
-  },
-  {
-    name: "Mercedes A45",
-    image: "/images/fleet/a45.avif",
-    price: "R4,500/half-day",
-    specs: ["Hot Hatch", "2.0L Turbo", "Automatic", "5 Seats", "2hrs: R2,000"]
-  },
-  {
-    name: "Chevrolet Lumina SS",
-    image: "/images/fleet/lumina.jpg",
-    price: "R4,500/half-day",
-    specs: ["Sport Sedan", "6.0L V8", "Automatic", "5 Seats", "2hrs: R1,500"]
-  }
-];
 
 export default function Fleet() {
   const dispatch = useAppDispatch();
   const { vehicles, loading, error } = useAppSelector((state) => state.vehicle);
 
   useEffect(() => {
-    dispatch(setVehicles(initialVehicles));
+    dispatch(fetchVehicles());
   }, [dispatch]);
 
   const handleBookNow = (vehicle: Vehicle) => {
@@ -160,7 +49,7 @@ export default function Fleet() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {vehicles.map((car, index) => (
-          <div key={car.name} className="group bg-white rounded-lg shadow-lg overflow-hidden">
+          <div key={car.id || index} className="group bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="relative aspect-[16/9] overflow-hidden">
               <Image
                 src={car.image}
@@ -189,7 +78,12 @@ export default function Fleet() {
                 className="block mt-4"
                 onClick={() => handleBookNow(car)}
               >
-                <Button className="w-full">Book Now</Button>
+                <Button 
+                  className="w-full"
+                  disabled={!car.available}
+                >
+                  {car.available ? 'Book Now' : 'Currently Unavailable'}
+                </Button>
               </a>
             </div>
           </div>

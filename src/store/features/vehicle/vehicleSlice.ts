@@ -1,6 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 export interface Vehicle {
+  id?: string;
   name: string;
   image: string;
   price: string;
@@ -16,38 +17,37 @@ interface VehicleState {
   error: string | null;
 }
 
+// Async thunks
+export const fetchVehicles = createAsyncThunk(
+  'vehicle/fetchVehicles',
+  async () => {
+    const response = await fetch('/api/vehicles');
+    if (!response.ok) {
+      throw new Error('Failed to fetch vehicles');
+    }
+    return response.json();
+  }
+);
+
+export const createVehicle = createAsyncThunk(
+  'vehicle/createVehicle',
+  async (vehicleData: Vehicle) => {
+    const response = await fetch('/api/vehicles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(vehicleData),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create vehicle');
+    }
+    return response.json();
+  }
+);
+
 const initialState: VehicleState = {
-  vehicles: [
-    {
-      name: "Lamborghini Urus",
-      image: "/images/fleet/urus.avif",
-      price: "R18,000/half-day",
-      specs: ["Premium SUV", "4.0L V8 Twin-Turbo", "Automatic", "5 Seats", "2hrs: R5,000"],
-      available: true
-    },
-    {
-      name: "BMW i7 740d",
-      image: "/images/fleet/i7.jpg",
-      price: "R10,000/half-day",
-      specs: ["Luxury Sedan", "Electric/Diesel Hybrid", "Automatic", "5 Seats", "2hrs: R3,000"],
-      available: true
-    },
-    {
-      name: "Mercedes G63",
-      image: "/images/fleet/g63.avif",
-      price: "R10,000/half-day",
-      specs: ["Luxury SUV", "4.0L V8 Biturbo", "Automatic", "5 Seats", "2hrs: R3,000"],
-      available: true
-    },
-    {
-      name: "Maserati Levante",
-      image: "/images/fleet/Levante.webp",
-      price: "R8,000/half-day",
-      specs: ["Luxury SUV", "3.0L V6 Twin-Turbo", "Automatic", "5 Seats", "2hrs: R2,500"],
-      available: true
-    },
-    // Add more vehicles here...
-  ],
+  vehicles: [],
   featuredVehicles: [],
   selectedVehicle: null,
   loading: false,
@@ -58,9 +58,6 @@ const vehicleSlice = createSlice({
   name: 'vehicle',
   initialState,
   reducers: {
-    setVehicles: (state, action: PayloadAction<Vehicle[]>) => {
-      state.vehicles = action.payload;
-    },
     setFeaturedVehicles: (state, action: PayloadAction<Vehicle[]>) => {
       state.featuredVehicles = action.payload;
     },
@@ -70,29 +67,31 @@ const vehicleSlice = createSlice({
     clearSelectedVehicle: (state) => {
       state.selectedVehicle = null;
     },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
-    },
-    setError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    },
-    toggleVehicleAvailability: (state, action: PayloadAction<string>) => {
-      const vehicle = state.vehicles.find(v => v.name === action.payload);
-      if (vehicle) {
-        vehicle.available = !vehicle.available;
-      }
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchVehicles.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchVehicles.fulfilled, (state, action) => {
+        state.loading = false;
+        state.vehicles = action.payload;
+      })
+      .addCase(fetchVehicles.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch vehicles';
+      })
+      .addCase(createVehicle.fulfilled, (state, action) => {
+        state.vehicles.push(action.payload);
+      });
   },
 });
 
 export const {
-  setVehicles,
   setFeaturedVehicles,
   setSelectedVehicle,
   clearSelectedVehicle,
-  setLoading,
-  setError,
-  toggleVehicleAvailability,
 } = vehicleSlice.actions;
 
 export default vehicleSlice.reducer;

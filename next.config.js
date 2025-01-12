@@ -1,9 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
   images: {
-    unoptimized: true
-  }
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
+  // Remove the output: 'export' to enable API routes
+  experimental: {
+    serverActions: true,
+  },
 }
 
 module.exports = nextConfig

@@ -70,5 +70,16 @@
     "typescript": "5.2.2",
     "vaul": "^0.9.9",
     "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@prisma/client": "^6.2.1",
+    "@types/node-fetch": "^2.6.12",
+    "axios": "^1.7.9",
+    "node-fetch": "^3.3.2",
+    "prisma": "^6.2.1",
+    "ts-node": "^10.9.2"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }

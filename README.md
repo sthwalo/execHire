@@ -1,85 +1,151 @@
-# ExecuHire Website
+# ExecuHire - Luxury Vehicle Rental Platform
 
-This project is a modern, responsive website for ExecuHire, a luxury car hire service, built using React and Next.js. The website aims to provide a seamless user experience while showcasing ExecuHire's premium services and vehicles.
+![ExecuHire Banner](public/images/hero.jpg)
+
+ExecuHire is a modern, full-stack web application for luxury vehicle rentals, built with Next.js 13, TypeScript, and PostgreSQL. The platform offers a seamless experience for booking high-end vehicles, with features like real-time availability tracking and an intuitive booking system.
+
+## Features
+
+- **Modern Tech Stack**: Built with Next.js 13, TypeScript, and PostgreSQL
+- **Responsive Design**: Beautiful UI that works seamlessly across all devices
+- **Real-time Updates**: Live vehicle availability tracking
+- **Secure Booking System**: End-to-end booking flow with status tracking
+- **Admin Dashboard**: Manage vehicles, bookings, and users
+- **API Integration**: RESTful API endpoints for vehicle and booking management
+- **State Management**: Redux Toolkit for efficient state handling
+- **Database Integration**: Prisma ORM for type-safe database operations
+
+## Tech Stack
+
+- **Frontend**:
+  - Next.js 13 (App Router)
+  - TypeScript
+  - Redux Toolkit
+  - Tailwind CSS
+  - Shadcn UI Components
+
+- **Backend**:
+  - Next.js API Routes
+  - PostgreSQL
+  - Prisma ORM
+  - JWT Authentication
+
+- **Testing**:
+  - Jest
+  - React Testing Library
+  - API Integration Tests
+
+- **DevOps**:
+  - Docker
+  - GitHub Actions
+  - Vercel Deployment
 
 ## Project Structure
 
 ```
-execHire/
-│
-├── public/               # Static files (images, icons, etc.)
+execuhire/
+├── app/                    # Next.js 13 app directory
+│   ├── api/               # API routes
+│   ├── components/        # Reusable components
+│   └── (routes)/         # App routes
+├── prisma/                # Database schema and migrations
+├── public/                # Static assets
 ├── src/
-│   ├── components/      # Reusable React components
-│   ├── pages/           # Next.js pages
-│   │   ├── index.js     # Home page
-│   │   ├── services.js  # Services page
-│   │   ├── about.js     # About Us page
-│   │   ├── contact.js   # Contact page
-│   ├── styles/          # CSS styles
-│   ├── utils/           # Utility functions
-│   └── data/            # JSON data files or API integration
-├── .gitignore           # Git ignore file
-├── package.json         # Project metadata and dependencies
-└── README.md            # Project documentation
+│   ├── store/            # Redux store configuration
+│   └── lib/              # Utility functions
+├── scripts/              # Development and testing scripts
+└── types/                # TypeScript type definitions
 ```
+
+## Vehicle Management
+
+The platform includes comprehensive vehicle management features:
+
+- Add, update, and remove vehicles
+- Track vehicle availability
+- Manage vehicle specifications
+- Handle vehicle images and media
+- Monitor booking history
+
+## Booking System
+
+Robust booking system with the following features:
+
+- Real-time availability checking
+- Booking status management (Pending, Confirmed, Cancelled)
+- User booking history
+- Admin booking overview
+- Email notifications
+
+## Security Features
+
+- JWT-based authentication
+- Role-based access control
+- Secure password handling
+- API rate limiting
+- Input validation and sanitization
+
+## Testing
+
+Comprehensive test suite including:
+
+- Unit tests for components
+- Integration tests for API endpoints
+- End-to-end testing
+- Automated CI/CD testing
+
+## Mobile Responsiveness
+
+The application is fully responsive and tested across:
+
+- Desktop browsers
+- Tablets
+- Mobile devices
+- Different screen sizes and orientations
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js and npm installed on your machine.
-- Basic understanding of React and Next.js.
-
-### Installation
-
-1. **Clone the repository:**
+1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/execHire.git
-   cd execHire
+   git clone https://github.com/yourusername/execuhire.git
    ```
 
-2. **Install dependencies:**
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-### Running the Development Server
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   ```
 
-Start the development server with:
-```bash
-npm run dev
-```
+4. Set up the database:
+   ```bash
+   npx prisma migrate dev
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the website in action.
+5. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-### Building for Production
+## Contributing
 
-To create an optimized production build, run:
-```bash
-npm run build
-```
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
 
-### Deployment
+## License
 
-Deploy the site using Vercel or any other hosting provider that supports Next.js.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### Customization
+## Developer
 
-- **Styles:** Modify styles in the `src/styles/` directory.
-- **Components:** Add or update components in the `src/components/` directory.
-- **Pages:** Edit content in the `src/pages/` directory to update the website's pages.
+Built with ❤️ by [Your Name]
 
-### Features
+## Acknowledgments
 
-- Responsive design with a modern look and feel.
-- Easy navigation and user-friendly interface.
-- Detailed information about services and vehicles.
-- Contact form for inquiries and bookings.
-
-### Contributing
-
-Feel free to open issues or submit pull requests for any improvements or bug fixes.
-
-### License
-
-This project is licensed under the MIT License.
+- [Next.js Team](https://nextjs.org)
+- [Vercel](https://vercel.com)
+- [Prisma](https://prisma.io)
+- [Tailwind CSS](https://tailwindcss.com)
+- [Shadcn UI](https://ui.shadcn.com)
