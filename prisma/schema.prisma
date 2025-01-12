@@ -11,37 +11,78 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  name      String?
-  password  String
-  role      Role      @default(USER)
-  bookings  Booking[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String?
+  password      String
+  role          Role          @default(USER)
+  bookings      Booking[]
+  notifications Notification[]
+  payments      Payment[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model Vehicle {
   id          String    @id @default(cuid())
   name        String
   image       String
+  images      String[]  @default([])
   price       String
+  pricePerDay Decimal   @default(0)
   specs       String[]
+  description String?   @default("")
+  category    Category  @default(STANDARD)
   available   Boolean   @default(true)
   bookings    Booking[]
+  reviews     Review[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
 
 model Booking {
+  id          String        @id @default(cuid())
+  userId      String
+  vehicleId   String
+  startDate   DateTime
+  endDate     DateTime
+  status      BookingStatus @default(PENDING)
+  totalAmount Decimal
+  payment     Payment?
+  user        User         @relation(fields: [userId], references: [id])
+  vehicle     Vehicle      @relation(fields: [vehicleId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  bookingId   String       @unique
+  userId      String
+  amount      Decimal
+  status      PaymentStatus @default(PENDING)
+  booking     Booking      @relation(fields: [bookingId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  vehicleId String
+  rating    Int
+  comment   String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
   id        String   @id @default(cuid())
   userId    String
-  vehicleId String
-  startDate DateTime
-  endDate   DateTime
-  status    Status   @default(PENDING)
+  message   String
+  read      Boolean  @default(false)
   user      User     @relation(fields: [userId], references: [id])
-  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -51,8 +92,22 @@ enum Role {
   ADMIN
 }
 
-enum Status {
+enum Category {
+  STANDARD
+  LUXURY
+  SPORT
+  SUV
+  VAN
+}
+
+enum BookingStatus {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }
