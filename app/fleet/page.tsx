@@ -1,23 +1,87 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { createWhatsAppLink } from '@/lib/whatsapp';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { fetchVehicles, setSelectedVehicle } from '@/src/store/features/vehicle/vehicleSlice';
+import { DatePickerWithRange } from '@/components/ui/date-range-picker';
+import { addDays } from 'date-fns';
+import { useSession } from 'next-auth/react';
+import { useToast } from '@/hooks/use-toast';
 import type { Vehicle } from '@/src/store/features/vehicle/vehicleSlice';
+import { useRouter } from 'next/navigation';
+import { DateRange } from 'react-day-picker';
 
 export default function Fleet() {
   const dispatch = useAppDispatch();
-  const { vehicles, loading, error } = useAppSelector((state) => state.vehicle);
+  const { data: session } = useSession();
+  const { toast } = useToast();
+  const router = useRouter();
+  const [bookingModal, setBookingModal] = useState(false);
+  const [selectedDates, setSelectedDates] = useState<DateRange>({
+    from: new Date(),
+    to: addDays(new Date(), 1)
+  });
+  const { vehicles, loading, error, selectedVehicle } = useAppSelector((state) => state.vehicle);
 
   useEffect(() => {
     dispatch(fetchVehicles());
   }, [dispatch]);
 
-  const handleBookNow = (vehicle: Vehicle) => {
+  const handleBookNow = async (vehicle: Vehicle) => {
+    if (!session) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to book a vehicle",
+        variant: "destructive",
+      });
+      return;
+    }
+
     dispatch(setSelectedVehicle(vehicle));
+    setBookingModal(true);
+  };
+
+  const handleBookingSubmit = async () => {
+    if (!selectedVehicle || !session?.user?.id) return;
+
+    try {
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: session.user.id,
+          vehicleId: selectedVehicle.id,
+          startDate: selectedDates.from,
+          endDate: selectedDates.to,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+
+      toast({
+        title: "Booking Created",
+        description: "Your booking has been created successfully. Please proceed to payment.",
+      });
+
+      setBookingModal(false);
+      // Redirect to payment page
+      router.push(`/payment/${data.id}`);
+    } catch (error) {
+      toast({
+        title: "Booking Failed",
+        description: error.message || "Failed to create booking",
+        variant: "destructive",
+      });
+    }
   };
 
   if (loading) {
@@ -72,9 +136,7 @@ export default function Fleet() {
                 ))}
               </ul>
               <a
-                href={createWhatsAppLink(car.name)}
-                target="_blank"
-                rel="noopener noreferrer"
+                href="#"
                 className="block mt-4"
                 onClick={() => handleBookNow(car)}
               >
@@ -126,6 +188,26 @@ export default function Fleet() {
           </div>
         </div>
       </div>
+
+      <Dialog open={bookingModal} onOpenChange={setBookingModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Book {selectedVehicle?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <DatePickerWithRange
+              selected={selectedDates}
+              onSelect={(range) => range && setSelectedDates(range)}
+            />
+            <Button 
+              onClick={handleBookingSubmit}
+              className="w-full"
+            >
+              Confirm Booking
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -52,43 +52,103 @@ export async function POST(request: NextRequest, res: any) {
       );
     }
 
-    // Check vehicle availability
-    const vehicle = await prisma.vehicle.findUnique({
-      where: { id: body.vehicleId },
-    });
+    // Validate dates
+    const startDate = new Date(body.startDate);
+    const endDate = new Date(body.endDate);
+    const now = new Date();
 
-    if (!vehicle || !vehicle.available) {
+    if (startDate < now) {
       return NextResponse.json(
-        { error: 'Vehicle not available' },
+        { error: 'Start date cannot be in the past' },
         { status: 400 }
       );
     }
 
-    // Create booking
-    const booking = await prisma.booking.create({
-      data: {
-        userId: body.userId,
-        vehicleId: body.vehicleId,
-        startDate: new Date(body.startDate),
-        endDate: new Date(body.endDate),
-        status: 'PENDING',
-      },
+    if (endDate <= startDate) {
+      return NextResponse.json(
+        { error: 'End date must be after start date' },
+        { status: 400 }
+      );
+    }
+
+    // Check vehicle availability and overlapping bookings
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id: body.vehicleId },
       include: {
-        vehicle: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
+        bookings: {
+          where: {
+            status: { in: ['PENDING', 'CONFIRMED'] },
+            OR: [
+              {
+                AND: [
+                  { startDate: { lte: startDate } },
+                  { endDate: { gte: startDate } }
+                ]
+              },
+              {
+                AND: [
+                  { startDate: { lte: endDate } },
+                  { endDate: { gte: endDate } }
+                ]
+              }
+            ]
+          }
+        }
+      }
     });
 
-    // Update vehicle availability
-    await prisma.vehicle.update({
-      where: { id: body.vehicleId },
-      data: { available: false },
+    if (!vehicle) {
+      return NextResponse.json(
+        { error: 'Vehicle not found' },
+        { status: 400 }
+      );
+    }
+
+    if (vehicle.bookings.length > 0) {
+      return NextResponse.json(
+        { error: 'Vehicle is not available for the selected dates' },
+        { status: 400 }
+      );
+    }
+
+    // Calculate total amount based on price per day
+    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const totalAmount = vehicle.pricePerDay * days;
+
+    // Create booking with transaction to ensure data consistency
+    const booking = await prisma.$transaction(async (tx) => {
+      const newBooking = await tx.booking.create({
+        data: {
+          userId: body.userId,
+          vehicleId: body.vehicleId,
+          startDate,
+          endDate,
+          status: 'PENDING',
+          totalAmount,
+        },
+        include: {
+          vehicle: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      // Create pending payment record
+      await tx.payment.create({
+        data: {
+          bookingId: newBooking.id,
+          userId: body.userId,
+          amount: totalAmount,
+          status: 'PENDING',
+        },
+      });
+
+      return newBooking;
     });
 
     return NextResponse.json(booking);
