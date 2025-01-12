@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, res: any) {
   try {
     const vehicles = await prisma.vehicle.findMany({
       orderBy: {
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest, res: any) {
   try {
     const body = await request.json();
     const vehicle = await prisma.vehicle.create({
