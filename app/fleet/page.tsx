@@ -1,9 +1,14 @@
+'use client';
+
+import { useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { createWhatsAppLink } from '@/lib/whatsapp';
-import Link from 'next/link';
+import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
+import { setVehicles, setSelectedVehicle } from '@/src/store/features/vehicle/vehicleSlice';
+import type { Vehicle } from '@/src/store/features/vehicle/vehicleSlice';
 
-const cars = [
+const initialVehicles: Vehicle[] = [
   {
     name: "Lamborghini Urus",
     image: "/images/fleet/urus.avif",
@@ -115,6 +120,35 @@ const cars = [
 ];
 
 export default function Fleet() {
+  const dispatch = useAppDispatch();
+  const { vehicles, loading, error } = useAppSelector((state) => state.vehicle);
+
+  useEffect(() => {
+    dispatch(setVehicles(initialVehicles));
+  }, [dispatch]);
+
+  const handleBookNow = (vehicle: Vehicle) => {
+    dispatch(setSelectedVehicle(vehicle));
+  };
+
+  if (loading) {
+    return (
+      <div className="container py-12 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container py-12">
+        <div className="text-center text-red-500">
+          Error loading vehicles: {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-12">
       <div className="text-center space-y-4 mb-12">
@@ -125,8 +159,8 @@ export default function Fleet() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {cars.map((car, index) => (
-          <div key={index} className="group bg-white rounded-lg shadow-lg overflow-hidden">
+        {vehicles.map((car, index) => (
+          <div key={car.name} className="group bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="relative aspect-[16/9] overflow-hidden">
               <Image
                 src={car.image}
@@ -139,7 +173,7 @@ export default function Fleet() {
             <div className="p-6 space-y-4">
               <div className="space-y-2">
                 <h3 className="text-xl font-semibold">{car.name}</h3>
-                <p className="text-sm font-semibold text-primary">Starting from {car.price}</p>
+                <p className="text-sm font-semibold text-primary">{car.price}</p>
               </div>
               <ul className="text-sm space-y-2">
                 {car.specs.map((spec, index) => (
@@ -153,6 +187,7 @@ export default function Fleet() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block mt-4"
+                onClick={() => handleBookNow(car)}
               >
                 <Button className="w-full">Book Now</Button>
               </a>
