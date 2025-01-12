@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Navigation } from '@/components/navigation';
 import { Footer } from '@/components/footer';
 import { ReduxProvider } from '@/src/store/provider';
+import { SafeComponent } from '@/components/error-boundary';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,11 +24,13 @@ export default function RootLayout({
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light">
           <ReduxProvider>
-            <div className="flex min-h-screen flex-col">
-              <Navigation />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
+            <SafeComponent>
+              <div className="flex min-h-screen flex-col">
+                <Navigation />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </SafeComponent>
           </ReduxProvider>
         </ThemeProvider>
       </body>
