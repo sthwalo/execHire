@@ -54,3 +54,9 @@ Thumbs.db
 *.mp4
 *.webm
 
+# .gitignore
+.env
+.env.local
+.env.*.local
+node_modules/
+.next/
