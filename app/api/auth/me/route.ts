@@ -13,24 +13,73 @@ export async function GET(request: NextRequest) {
           name: true,
           email: true,
           role: true,
-          bookings: {
-            include: {
-              vehicle: true,
-              payment: true
-            },
-            orderBy: {
-              createdAt: 'desc'
+          reviews: {
+            select: {
+              id: true,
+              rating: true,
+              comment: true,
+              vehicle: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true,
+                  price: true,
+                  pricePerDay: true,
+                  images: true,
+                  specs: true,
+                  category: true,
+                  available: true,
+                  createdAt: true,
+                  updatedAt: true
+                }
+              },
+              createdAt: true,
+              updatedAt: true
             }
           },
-          reviews: {
-            include: {
-              vehicle: true
+          bookings: {
+            select: {
+              id: true,
+              vehicle: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true,
+                  price: true,
+                  pricePerDay: true,
+                  images: true,
+                  specs: true,
+                  category: true,
+                  available: true,
+                  reviews: true,
+                  createdAt: true,
+                  updatedAt: true
+                }
+              },
+              payment: {
+                select: {
+                  id: true,
+                  amount: true,
+                  status: true,
+                  createdAt: true,
+                  updatedAt: true,
+                }
+              },
+              createdAt: true,
+              updatedAt: true,
             },
             orderBy: {
               createdAt: 'desc'
             }
           },
           notifications: {
+            select: {
+              id: true,
+              message: true,
+              read: true,
+              createdAt: true,
+              updatedAt: true,
+            },
             orderBy: {
               createdAt: 'desc'
             }
