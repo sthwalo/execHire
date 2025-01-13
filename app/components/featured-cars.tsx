@@ -3,11 +3,14 @@
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { setFeaturedVehicles, setSelectedVehicle } from '@/src/store/features/vehicle/vehicleSlice';
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Image from 'next/image';
-import { createWhatsAppLink } from '@/lib/whatsapp';
 import { useRouter } from 'next/navigation';
+import { createWhatsAppLink } from '@/lib/whatsapp';
+
+import { FeaturedCarsSection } from './featured-cars';
+
+interface FeaturedCarsProps {
+  vehicles: any[];
+}
 
 export default function FeaturedCars() {
   const dispatch = useAppDispatch();
@@ -44,50 +47,6 @@ export default function FeaturedCars() {
   }
 
   return (
-    <section className="w-full py-12 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold">Featured Vehicles</h2>
-          <p className="text-muted-foreground mt-2">
-            Explore our selection of premium vehicles
-          </p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredVehicles.map((vehicle) => (
-            <Card key={vehicle.id} className="overflow-hidden">
-              <CardHeader className="p-0">
-                <div className="relative h-48">
-                  <Image
-                    src={vehicle.image}
-                    alt={vehicle.name}
-                    width={400}
-                    height={300}
-                    className="object-cover w-full h-full"
-                    unoptimized
-                  />
-                </div>
-              </CardHeader>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-semibold mb-2">{vehicle.name}</h3>
-                <p className="text-muted-foreground text-sm mb-4">{vehicle.price}</p>
-                <div className="space-y-2 mb-4">
-                  {vehicle.specs.map((spec, index) => (
-                    <p key={index} className="text-sm text-muted-foreground">
-                      {spec}
-                    </p>
-                  ))}
-                </div>
-                <Button
-                  className="w-full"
-                  onClick={() => handleBookNow(vehicle)}
-                >
-                  Book Now
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </section>
+    <FeaturedCarsSection vehicles={featuredVehicles} />
   );
 }
