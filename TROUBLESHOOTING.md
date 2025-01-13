@@ -11,6 +11,7 @@ This guide covers common issues you might encounter while setting up or running 
 5. [Payment Integration Issues](#payment-integration-issues)
 6. [Email Notification Issues](#email-notification-issues)
 7. [Development Server Issues](#development-server-issues)
+8. [January 13, 2025 Updates](#january-13-2025-updates)
 
 ## Database Issues
 
@@ -173,6 +174,130 @@ This guide covers common issues you might encounter while setting up or running 
 2. Clear browser cache
 3. Check file watching settings
 4. Verify system file watchers limit
+
+## January 13, 2025 Updates
+
+### 1. Database Schema and Migration Issues
+
+#### Issue: Missing pricePerHour Field
+**Problem**: The database schema was missing the `pricePerHour` field for vehicles, causing validation errors.
+**Solution**: 
+1. Added new migration for `pricePerHour`:
+```sql
+ALTER TABLE "Vehicle" ADD COLUMN "pricePerHour" DECIMAL(65,30) NOT NULL DEFAULT 0;
+```
+2. Updated schema.prisma to include the field
+3. Created and ran migration using `npx prisma migrate deploy`
+
+#### Issue: Unique Constraint on Vehicle Names
+**Problem**: Needed to ensure vehicle names are unique in the database
+**Solution**: Added unique constraint to the Vehicle model:
+```sql
+CREATE UNIQUE INDEX "Vehicle_name_key" ON "Vehicle"("name");
+```
+
+### 2. Seed File Updates
+
+#### Issue: Preserving Existing Data
+**Problem**: Initial seed file was deleting all existing records
+**Solution**: 
+1. Removed the deleteMany operations
+2. Used Prisma's upsert operation to preserve existing records while adding new ones:
+```typescript
+await prisma.vehicle.upsert({
+  where: { name: vehicle.name },
+  update: vehicle,
+  create: vehicle
+});
+```
+
+### 3. UI/UX Improvements
+
+#### Issue: Price Display in Featured Cars
+**Problem**: Prices were showing in both featured cars and fleet sections
+**Solution**: Removed price display from featured cars component to only show it in the fleet section
+
+#### Issue: Video Path References
+**Problem**: Video paths were incorrectly including 'public' prefix
+**Solution**: Updated video source paths in page.tsx:
+- Changed from: `"public/videos/mec.mp4"`
+- To: `"/videos/mec.mp4"`
+
+### 4. Image Path Updates
+**Problem**: Image paths were using .jpg extension but files are in .avif format
+**Solution**: Updated all image paths in seed.ts to use .avif extension:
+- may.avif
+- s5.avif
+- m5.avif
+- rsport24.avif
+- levante.avif
+- p530.avif
+- urus.avif
+- etc.
+
+## Git Commit Steps
+
+1. Database Schema Changes:
+```bash
+git add prisma/migrations/20250113150200_add_price_per_hour/migration.sql
+git add prisma/schema.prisma
+git commit -m "feat(db): add pricePerHour field and unique vehicle names"
+```
+
+2. Seed File Updates:
+```bash
+git add prisma/seed.ts
+git commit -m "feat(db): update seed file with new vehicles and correct image paths"
+```
+
+3. UI Components:
+```bash
+git add app/components/featured-cars/index.tsx
+git commit -m "fix(ui): remove price display from featured cars section"
+```
+
+4. Video Path Fixes:
+```bash
+git add app/page.tsx
+git commit -m "fix(ui): correct video paths in hero and fleet sections"
+```
+
+5. Push Changes:
+```bash
+git push origin main
+```
+
+## Next Steps
+1. Ensure all vehicle images are in the correct format (.avif) in the public/images/fleet directory
+2. Verify video files are correctly placed in public/videos directory
+3. Run database migrations on production
+4. Test the application to ensure all features work as expected
+
+## Common Commands
+
+### Database Management
+```bash
+# Apply migrations
+npx prisma migrate deploy
+
+# Reset database (if needed)
+npx prisma migrate reset
+
+# Seed database
+npx prisma db seed
+```
+
+### Development
+```bash
+# Start development server
+npm run dev
+
+# Build application
+npm run build
+
+# Start production server
+npm start
+```
 
 ## Performance Issues
 
