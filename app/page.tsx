@@ -2,9 +2,11 @@ import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { FeaturedCarsSection } from "./components/featured-cars/featured-cars-section";
+import { $Enums } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export default async function Home() {
-  let featuredVehicles = [];
+  let featuredVehicles: { id: string; name: string; image: string; images: string[]; price: string; pricePerDay: Decimal; specs: string[]; description: string | null; category: $Enums.Category; available: boolean; featured: boolean; createdAt: Date; updatedAt: Date; }[] = [];
   
   try {
     // Get vehicles marked as featured based on specific criteria
@@ -44,7 +46,7 @@ export default async function Home() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/videos/hero-background.mp4" type="video/mp4" />
+          <source src="/videos/mec.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 text-center text-white px-4">
@@ -75,9 +77,9 @@ export default async function Home() {
             <video
               controls
               className="w-full h-full object-cover"
-              poster="/images/fleet-video-thumbnail.jpg"
+              poster="/images/fleet/urus.avif"
             >
-              <source src="/videos/fleet-showcase.mp4" type="video/mp4" />
+              <source src="/videos/mec.mp4" type="video/mp4" />
             </video>
           </div>
           <div className="text-center mt-8">
