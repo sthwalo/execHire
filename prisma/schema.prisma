@@ -35,6 +35,7 @@ model Vehicle {
   description String?   @default("")
   category    Category  @default(STANDARD)
   available   Boolean   @default(true)
+  featured    Boolean   @default(false)
   bookings    Booking[]
   reviews     Review[]
   createdAt   DateTime  @default(now())
@@ -100,8 +101,9 @@ enum Category {
   STANDARD
   LUXURY
   SPORT
-  SUV
+  VINTAGE
   VAN
+  SUV
 }
 
 enum BookingStatus {
@@ -115,4 +117,5 @@ enum PaymentStatus {
   PENDING
   COMPLETED
   FAILED
+  REFUNDED
 }
