@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../../prisma/client';
-import { getCachedVehicle, setCachedVehicle, invalidateVehicleCache } from '../../../lib/redis';
+import { prisma } from '@/prisma/client';
+import { getCachedVehicle, setCachedVehicle, invalidateVehicleCache } from '@/lib/redis';
 import { Vehicle } from '@prisma/client';
 
 export async function GET(
