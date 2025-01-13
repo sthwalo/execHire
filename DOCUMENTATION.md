@@ -4,13 +4,29 @@
 
 ### Frontend
 - **Framework**: Next.js 13+ (App Router)
+- **State Management**:
+  - Redux Toolkit for global state
+  - React Hooks and Context API for local state
 - **UI/Styling**:
   - Tailwind CSS for styling
   - Shadcn UI for component library
   - Lucide Icons for iconography
-- **State Management**: React Hooks and Context API
 - **Form Handling**: React Hook Form with Yup validation
 - **Date Handling**: date-fns
+
+### State Management Architecture
+- **Redux Store Structure**:
+  - `auth`: User authentication state
+  - `booking`: Booking management state
+  - `vehicle`: Vehicle catalog and details state
+- **Redux Toolkit Features**:
+  - Simplified Redux logic with createSlice
+  - Built-in Immer for immutable updates
+  - Integrated Thunk middleware
+  - TypeScript support
+- **Custom Hooks**:
+  - Typed hooks for Redux dispatch and selectors
+  - Integration with Next.js App Router
 
 ### Backend
 - **Runtime**: Node.js
