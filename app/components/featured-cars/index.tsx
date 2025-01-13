@@ -41,9 +41,6 @@ function FeaturedCarCard({ vehicle }: { vehicle: Vehicle }) {
             </div>
           ))}
         </div>
-        <div className="mt-4">
-          <p className="text-lg font-semibold text-primary">{vehicle.price}</p>
-        </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         <Link href={`/fleet?vehicle=${vehicle.id}`} className="w-full">
