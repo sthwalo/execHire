@@ -97,11 +97,10 @@ export async function PUT(request: NextRequest) {
         })
       ]);
 
+      // Create notification for payment
       await prisma.notification.create({
         data: {
           userId: user.id,
-          bookingId: booking.id,
-          type: 'PAYMENT_RECEIVED',
           message: `Payment received for booking #${booking.id}`
         }
       });

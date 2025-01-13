@@ -2,7 +2,7 @@ import { Vehicle } from '@prisma/client';
 import { FeaturedCars } from './index';
 
 interface FeaturedCarsSectionProps {
-  vehicles: Vehicle[];
+  vehicles: Vehicle[];  // Using the Prisma Vehicle type
 }
 
 export function FeaturedCarsSection({ vehicles }: FeaturedCarsSectionProps) {

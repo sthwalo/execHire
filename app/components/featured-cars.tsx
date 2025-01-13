@@ -6,7 +6,7 @@ import { setFeaturedVehicles, setSelectedVehicle } from '@/src/store/features/ve
 import { useRouter } from 'next/navigation';
 import { createWhatsAppLink } from '@/lib/whatsapp';
 
-import { FeaturedCarsSection } from './featured-cars';
+import { FeaturedCarsSection } from './featured-cars/featured-cars-section';
 
 interface FeaturedCarsProps {
   vehicles: any[];

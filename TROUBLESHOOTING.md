@@ -12,6 +12,9 @@ This guide covers common issues you might encounter while setting up or running 
 6. [Email Notification Issues](#email-notification-issues)
 7. [Development Server Issues](#development-server-issues)
 8. [January 13, 2025 Updates](#january-13-2025-updates)
+9. [Production Build Issues](#production-build-issues)
+10. [Module Not Found Errors](#module-not-found-errors)
+11. [Dependency Resolution Errors](#dependency-resolution-errors)
 
 ## Database Issues
 
@@ -43,6 +46,55 @@ This guide covers common issues you might encounter while setting up or running 
 2. Apply migrations: `npx prisma migrate deploy`
 3. Seed the database: `npx prisma db seed`
 
+### Prisma Create Operation Type Errors
+
+**Problem**: Type error when creating records with unknown properties
+**Error**: `Object literal may only specify known properties, and 'type' does not exist in type`
+**Solution**: 
+
+1. Check the exact shape of your Prisma model:
+```prisma
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  message   String
+  read      Boolean  @default(false)
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+2. Match your create operation exactly to the schema:
+```typescript
+// Correct way - only using fields defined in schema
+await prisma.notification.create({
+  data: {
+    userId: user.id,
+    message: "Your notification message"
+  }
+});
+
+// Wrong way - using undefined fields
+await prisma.notification.create({
+  data: {
+    userId: user.id,
+    type: "PAYMENT",  // Error: 'type' is not in schema
+    message: "Your notification message"
+  }
+});
+```
+
+3. If you need to categorize notifications:
+   - Either use the message field to include the type
+   - Or add a type field to your schema:
+   ```prisma
+   model Notification {
+     // ... other fields
+     type      String?   // Add this if you need types
+   }
+   ```
+
 ## Authentication Issues
 
 ### NextAuth Session Not Working
@@ -64,6 +116,154 @@ This guide covers common issues you might encounter while setting up or running 
 2. Check middleware configuration
 3. Clear browser cache and cookies
 4. Re-login as admin
+
+### NextAuth Configuration Errors in Next.js 13+
+
+**Problem**: Route "app/api/auth/[...nextauth]/route.ts" does not match the required types of a Next.js Route.
+**Error Message**: "[authOptions] is not a valid Route export field"
+**Solution**: 
+1. Split NextAuth configuration into separate files:
+
+```typescript
+// Step 1: Create new file /app/api/auth/[...nextauth]/options.ts
+// Move all configuration here:
+- Auth configuration (authOptions)
+- Type declarations
+- Providers setup
+- Callbacks
+- Session configuration
+
+// Step 2: Simplify route.ts to only contain:
+import NextAuth from "next-auth";
+import { authOptions } from "./options";
+
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST };
+```
+
+2. If the error persists:
+   - Clear Next.js cache: `rm -rf .next`
+   - Rebuild the application: `npm run build`
+
+Note: In Next.js 13+, route files should only export route handlers (GET, POST, etc.). Configuration should be moved to separate files.
+
+### NextAuth Type Errors
+
+**Problem**: Property 'role' does not exist on type 'User | AdapterUser'
+**Solution**: Extend NextAuth types to include custom properties:
+
+```typescript
+// In your auth configuration file (e.g., options.ts)
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      role: string;
+    } & DefaultSession["user"]
+  }
+
+  // Add this interface to extend the User type
+  interface User {
+    role: string;
+  }
+}
+```
+
+This tells TypeScript that:
+1. The Session's user object includes 'id' and 'role'
+2. The User type includes a 'role' property
+3. These types are merged with NextAuth's built-in types
+
+### NextAuth Adapter Type Errors
+
+**Problem**: Type mismatch between PrismaAdapter and NextAuth Adapter types
+**Error**: `Type 'Adapter' is not assignable to type 'Adapter'`
+**Solution**: 
+1. Extend the AdapterUser type and adjust the adapter configuration:
+
+```typescript
+// Add this type declaration
+declare module "@auth/core/adapters" {
+  interface AdapterUser {
+    role: string;
+  }
+}
+
+// Use type assertion for adapter
+export const authOptions: AuthOptions = {
+  adapter: PrismaAdapter(prisma) as any,  // Type assertion to avoid mismatch
+  // ... rest of your configuration
+}
+```
+
+2. If the error persists, check your package versions:
+```bash
+# Make sure these versions are compatible
+npm list next-auth
+npm list @prisma/client
+npm list @auth/prisma-adapter
+```
+
+Note: The type assertion (`as any`) is a temporary solution. For a more type-safe approach, consider:
+- Updating to compatible versions of the packages
+- Using the official Prisma adapter for your Next-auth version
+- Filing an issue with the Next-auth team if the type mismatch persists
+
+### NextAuth Package Installation Issues
+
+**Problem**: Dependency conflicts when installing NextAuth packages
+**Solution**: Install packages with --legacy-peer-deps flag:
+
+```bash
+# For NextAuth Prisma adapter
+npm install @next-auth/prisma-adapter --legacy-peer-deps
+
+# For other NextAuth related packages
+npm install [package-name] --legacy-peer-deps
+```
+
+Note: Using --legacy-peer-deps might ignore some dependency warnings, but it's often necessary when:
+- Working with Next.js 13+
+- Using multiple auth-related packages
+- Dealing with version mismatches between NextAuth and its adapters
+
+### NextAuth Import Errors
+
+**Problem**: Module declares 'authOptions' locally, but it is not exported
+**Solution**: Import authOptions from the options file, not the route file:
+
+```typescript
+// Instead of:
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+
+// Use:
+import { authOptions } from '@/app/api/auth/[...nextauth]/options';
+```
+
+Note: In Next.js 13+ with separated auth configuration:
+- `options.ts` contains and exports the auth configuration
+- `route.ts` only handles the API routes
+- Always import `authOptions` from the options file
+- The route file should not export `authOptions`
+
+### Module Import Errors in Next.js 13+
+
+**Problem**: Cannot find module './options' or its corresponding type declarations
+**Solution**: Add file extension when importing local TypeScript files:
+
+```typescript
+// Instead of:
+import { something } from './file'
+
+// Use:
+import { something } from './file.ts'
+```
+
+Note: Next.js 13+ requires explicit file extensions for TypeScript imports. This applies to:
+- Local TypeScript files (.ts)
+- Local TypeScript React files (.tsx)
+- Does not apply to package imports (e.g., from 'next-auth')
 
 ## Image Loading Issues
 
@@ -320,6 +520,84 @@ npm start
 2. Monitor component unmounting
 3. Verify event listener cleanup
 4. Use React profiler to identify issues
+
+## Production Build Issues
+
+### ENOENT: no such file or directory, open '.next/BUILD_ID'
+**Problem**: Attempting to run `next start` without building the application first
+**Solution**: 
+1. Always build the application before starting in production mode:
+```bash
+# First, build the application
+npm run build
+
+# Then start the production server
+npm start
+```
+2. If the error persists:
+   - Delete the `.next` folder: `rm -rf .next`
+   - Clear npm cache: `npm cache clean --force`
+   - Rebuild the application: `npm run build`
+
+## Module Not Found Errors
+
+**Problem**: Build fails with "Module not found" errors, e.g., "Can't resolve '@radix-ui/react-select'"
+**Solution**: 
+1. Install the missing dependencies:
+```bash
+# For Radix UI components
+npm install @radix-ui/react-select
+
+# If you encounter other missing modules, install them similarly:
+npm install [package-name]
+```
+2. Clear Next.js cache and node_modules (if issues persist):
+```bash
+# Remove Next.js cache
+rm -rf .next
+
+# Remove node_modules
+rm -rf node_modules
+
+# Reinstall dependencies
+npm install
+```
+3. Rebuild the application:
+```bash
+npm run build
+```
+
+## Dependency Resolution Errors
+
+**Problem**: npm ERESOLVE errors due to conflicting peer dependencies (e.g., conflicts with @types/react versions)
+**Solution**: 
+1. Try installing with --legacy-peer-deps flag:
+```bash
+npm install [package-name] --legacy-peer-deps
+```
+
+2. If issues persist, try cleaning and reinstalling:
+```bash
+# Remove node_modules and package-lock.json
+rm -rf node_modules package-lock.json
+
+# Clear npm cache
+npm cache clean --force
+
+# Reinstall all dependencies with legacy peer deps
+npm install --legacy-peer-deps
+```
+
+3. Alternative solution - update specific type definitions:
+```bash
+# Update @types/react to a compatible version
+npm install @types/react@18.2.25 --save-dev --legacy-peer-deps
+```
+
+Note: Using --legacy-peer-deps is a temporary solution. For long-term stability, consider:
+- Updating your dependencies to compatible versions
+- Creating an issue in the relevant package repository
+- Using yarn or pnpm as alternative package managers
 
 ## Need More Help?
 
