@@ -8,7 +8,80 @@ async function main() {
   await prisma.vehicle.deleteMany();
   await prisma.user.deleteMany();
 
+  // Create admin user
+  const adminUser = await prisma.user.create({
+    data: {
+      email: "1dDgX@example.com",
+      name: "Admin User",
+      password: "admin123",
+      role: "USER"
+    }
+  });
+
   // Create vehicles
+  // Add this to our existing vehicle data
+  const newVehicles = [
+    {
+      name: "Mercedes Maybach",
+      image: "/images/fleet/mercedes-maybach.jpg",
+      price: "R10,000/half-day | R3,000/hr",
+      specs: ["Luxury Sedan", "V12 Engine", "7-Speed Auto", "4 Seats", "621 HP"],
+      available: true,
+      pricePerDay: 20000,
+      category: Category.LUXURY,
+      featured: true
+    },
+    {
+      name: "Audi S5 Convertible",
+      image: "/images/fleet/audi-s5-convertible.jpg",
+      price: "R8,000/half-day | R2,500/hr",
+      specs: ["Sports Convertible", "3.0L V6 Turbo", "8-Speed Auto", "4 Seats", "349 HP"],
+      available: true,
+      pricePerDay: 16000,
+      category: Category.PREMIUM,
+      featured: true
+    },
+    {
+      name: "BMW M5",
+      image: "/images/fleet/bmw-m5.jpg",
+      price: "R8,000/half-day | R2,500/hr",
+      specs: ["High-Performance Sedan", "4.4L V8 Twin-Turbo", "8-Speed Auto", "5 Seats", "600 HP"],
+      available: true,
+      pricePerDay: 16000,
+      category: Category.PREMIUM,
+      featured: true
+    },
+    {
+      name: "Range Rover Sport 2024",
+      image: "/images/fleet/range-rover-sport-2024.jpg",
+      price: "R8,000/half-day | R2,500/hr",
+      specs: ["Luxury SUV", "3.0L I6 Turbo", "8-Speed Auto", "5 Seats", "395 HP"],
+      available: true,
+      pricePerDay: 16000,
+      category: Category.PREMIUM,
+      featured: true
+    },
+    {
+      name: "Maserati Levante",
+      image: "/images/fleet/maserati-levante.jpg",
+      price: "R8,000/half-day | R2,500/hr",
+      specs: ["Luxury SUV", "3.0L V6 Twin-Turbo", "8-Speed Auto", "5 Seats", "345 HP"],
+      available: true,
+      pricePerDay: 16000,
+      category: Category.PREMIUM,
+      featured: true
+    },
+    {
+      name: "Range Rover P530 First Edition",
+      image: "/images/fleet/range-rover-p530.jpg",
+      price: "R8,000/half-day | R2,500/hr",
+      specs: ["Luxury SUV", "4.4L V8 Twin-Turbo", "8-Speed Auto", "5 Seats", "523 HP"],
+      available: true,
+      pricePerDay: 16000,
+      category: Category.PREMIUM,
+      featured: true
+    }
+  ];
   const vehicles = [
     {
       name: "Lamborghini Urus",
