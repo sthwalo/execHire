@@ -10,7 +10,7 @@ import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import { addDays } from 'date-fns';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/use-toast';
-import type { Vehicle } from '@/src/store/features/vehicle/vehicleSlice';
+import type { Vehicle } from '@/src/types';
 import { useRouter } from 'next/navigation';
 import { DateRange } from 'react-day-picker';
 

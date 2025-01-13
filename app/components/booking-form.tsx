@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
-import { setSelectedVehicle, setBookingDates, setCurrentBooking } from '@/src/store/features/booking/bookingSlice';
+import { setSelectedVehicle, setBookingDates, clearCurrentBooking } from '@/src/store/features/booking/bookingSlice';
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Form,
   FormControl,
@@ -20,17 +23,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { format, differenceInDays } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { format, differenceInDays } from "date-fns";
+import { CalendarIcon, Loader2 } from "lucide-react";
 
-const formSchema = z.object({
+// Define the form validation schema
+const bookingFormSchema = z.object({
   vehicleId: z.string({
     required_error: "Please select a vehicle.",
   }),
@@ -44,6 +45,9 @@ const formSchema = z.object({
   message: "End date must be after start date",
   path: ["endDate"],
 });
+
+// Infer the form type from the schema
+type BookingFormValues = z.infer<typeof bookingFormSchema>;
 
 type Vehicle = {
   id: string;
@@ -70,8 +74,8 @@ export function BookingForm() {
   });
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<BookingFormValues>({
+    resolver: zodResolver(bookingFormSchema),
   });
 
   // Fetch vehicles from the API
@@ -105,7 +109,7 @@ export function BookingForm() {
     }
   }, [form.watch(['startDate', 'endDate', 'vehicleId']), vehicles]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: BookingFormValues) => {
     setLoading(true);
     try {
       const { vehicleId, startDate, endDate } = values;
@@ -135,14 +139,7 @@ export function BookingForm() {
         startDate: format(startDate, 'yyyy-MM-dd'),
         endDate: format(endDate, 'yyyy-MM-dd'),
       }));
-      dispatch(setCurrentBooking({
-        id: booking.id,
-        serviceType: 'vehicle-rental',
-        date: format(startDate, 'yyyy-MM-dd'),
-        time: '10:00',
-        status: 'pending',
-        location: 'Main Branch'
-      }));
+      dispatch(clearCurrentBooking());
 
       toast({
         title: 'Success',

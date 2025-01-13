@@ -1,115 +1,124 @@
-'use client';
+import { Button } from "@/components/ui/button";
+import { prisma } from "@/lib/db";
+import Link from "next/link";
+import { FeaturedCarsSection } from "./components/featured-cars/featured-cars-section";
 
-import { useEffect } from 'react';
-import { useAppDispatch } from '@/src/store/hooks';
-import { fetchVehicles } from '@/src/store/features/vehicle/vehicleSlice';
-import FeaturedCars from './components/featured-cars';
-import { Button } from '@/components/ui/button';
-import { Car, Shield, Clock, Award } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { createWhatsAppLink } from '@/lib/whatsapp';
+export default async function Home() {
+  let featuredVehicles = [];
+  
+  try {
+    // Get vehicles marked as featured based on specific criteria
+    featuredVehicles = await prisma.vehicle.findMany({
+      where: {
+        OR: [
+          { name: { contains: 'Lamborghini' } },
+          { name: { contains: 'BMW' } },
+          { name: { contains: 'Mercedes' } },
+          { name: { contains: 'Porsche' } }
+        ]
+      },
+      orderBy: {
+        pricePerDay: 'desc'
+      },
+      take: 4,
+      include: {
+        reviews: true
+      }
+    });
 
-export default function Home() {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    dispatch(fetchVehicles());
-  }, [dispatch]);
+    console.log('Fetched vehicles:', featuredVehicles);
+  } catch (error) {
+    console.error('Error fetching featured vehicles:', error);
+    // Initialize with empty array to prevent runtime errors
+    featuredVehicles = [];
+  }
 
   return (
-    <main>
+    <main className="flex min-h-screen flex-col items-center justify-between">
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center">
-        <div className="absolute inset-0 bg-gradient-to-r from-black to-gray-900" />
-        <div className="container relative z-10 text-white">
-          <h1 className="text-5xl font-bold mb-6">
-            Experience Luxury <br />
-            On Your Terms
+      <section className="w-full h-[90vh] relative flex items-center justify-center">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/hero-background.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-black/40" />
+        <div className="relative z-10 text-center text-white px-4">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Luxury & Performance Car Hire
           </h1>
-          <p className="text-xl mb-8 max-w-2xl">
-            Discover our exclusive fleet of premium vehicles available for rent.
-            From sports cars to luxury SUVs, we have the perfect vehicle for your needs.
+          <p className="text-xl md:text-2xl mb-8">
+            Experience the extraordinary with ExecuHire
           </p>
           <Link href="/fleet">
-            <Button size="lg" className="gap-2">
-              <Car className="w-5 h-5" />
+            <Button size="lg" className="text-lg">
               View Our Fleet
             </Button>
           </Link>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-muted/50">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Shield className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Premium Insurance</h3>
-              <p className="text-muted-foreground">
-                Comprehensive coverage for peace of mind during your rental period
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Clock className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Flexible Rental</h3>
-              <p className="text-muted-foreground">
-                Choose from hourly, daily, or weekly rental options
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Car className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Latest Models</h3>
-              <p className="text-muted-foreground">
-                Access to the newest and most prestigious vehicles
-              </p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <Award className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold">Premium Service</h3>
-              <p className="text-muted-foreground">
-                24/7 support and concierge services for our clients
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Featured Vehicles */}
+      <FeaturedCarsSection vehicles={featuredVehicles} />
 
-      {/* Featured Cars Section */}
-      <section className="py-16">
-        <div className="container">
-          <h2 className="text-3xl font-bold text-center mb-12">Featured Vehicles</h2>
-          <FeaturedCars />
+      {/* Fleet in Action Video Section */}
+      <section className="w-full py-20 bg-gray-100">
+        <div className="container mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+            Our Fleet in Action
+          </h2>
+          <div className="relative aspect-video w-full max-w-4xl mx-auto rounded-lg overflow-hidden shadow-xl">
+            <video
+              controls
+              className="w-full h-full object-cover"
+              poster="/images/fleet-video-thumbnail.jpg"
+            >
+              <source src="/videos/fleet-showcase.mp4" type="video/mp4" />
+            </video>
+          </div>
           <div className="text-center mt-8">
             <Link href="/fleet">
-              <Button size="lg" variant="outline" className="gap-2">
-                View All Vehicles
-                <Car className="w-5 h-5" />
+              <Button size="lg" className="text-lg">
+                Explore Full Fleet
               </Button>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-muted">
-        <div className="container text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Experience Luxury?</h2>
-          <p className="text-xl text-muted-foreground mb-8">
-            Contact us now to book your dream vehicle
-          </p>
-          <Link href="/contact">
-            <Button size="lg">Contact Us</Button>
-          </Link>
+      {/* Why Choose Us */}
+      <section className="w-full py-20 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
+            Why Choose ExecuHire
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center p-6">
+              <div className="text-4xl mb-4">🌟</div>
+              <h3 className="text-xl font-semibold mb-3">Premium Fleet</h3>
+              <p className="text-gray-600">
+                Curated selection of luxury and performance vehicles
+              </p>
+            </div>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-4">🔒</div>
+              <h3 className="text-xl font-semibold mb-3">Secure Booking</h3>
+              <p className="text-gray-600">
+                Simple and secure online booking process
+              </p>
+            </div>
+            <div className="text-center p-6">
+              <div className="text-4xl mb-4">👨‍✈️</div>
+              <h3 className="text-xl font-semibold mb-3">Professional Service</h3>
+              <p className="text-gray-600">
+                Dedicated team ensuring a premium experience
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </main>
