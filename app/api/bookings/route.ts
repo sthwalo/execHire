@@ -4,15 +4,13 @@ import { prisma } from '@/lib/db';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { sendBookingConfirmation } from '@/lib/email';
+import { apiResponse, apiError, apiSuccess } from '@/lib/api-response';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return apiError('Unauthorized', 401);
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -24,10 +22,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 400 }
-      );
+      return apiError('User not found', 400);
     }
 
     const bookings = await prisma.booking.findMany({
@@ -49,34 +44,31 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(bookings);
+    return apiSuccess(bookings);
   } catch (error) {
     console.error('Failed to fetch bookings:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch bookings' },
-      { status: 500 }
-    );
+    return apiError('An unexpected error occurred while fetching bookings', 500);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate content type
+    const contentType = request.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      return apiError('Content-Type must be application/json', 415);
+    }
+
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.email) {
-      return NextResponse.json(
-        { error: 'You must be logged in to make a booking' },
-        { status: 401 }
-      );
+      return apiError('You must be logged in to make a booking', 401);
     }
 
     const body = await request.json().catch(() => null);
     
     if (!body) {
-      return NextResponse.json(
-        { error: 'Invalid request body' },
-        { status: 400 }
-      );
+      return apiError('Invalid JSON in request body', 400);
     }
 
     // Get user from session
@@ -85,18 +77,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 400 }
-      );
+      return apiError('User not found', 400);
     }
 
     // Validate required fields
     if (!body.vehicleId || !body.startDate || !body.endDate || !body.totalAmount) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return apiError('Missing required fields', 400);
     }
 
     // Validate dates
@@ -105,24 +91,15 @@ export async function POST(request: NextRequest) {
     const now = new Date();
 
     if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-      return NextResponse.json(
-        { error: 'Invalid date format' },
-        { status: 400 }
-      );
+      return apiError('Invalid date format', 400);
     }
 
     if (startDate < now) {
-      return NextResponse.json(
-        { error: 'Start date cannot be in the past' },
-        { status: 400 }
-      );
+      return apiError('Start date cannot be in the past', 400);
     }
 
     if (endDate <= startDate) {
-      return NextResponse.json(
-        { error: 'End date must be after start date' },
-        { status: 400 }
-      );
+      return apiError('End date must be after start date', 400);
     }
 
     // Check vehicle availability and overlapping bookings
@@ -152,24 +129,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (!vehicle) {
-      return NextResponse.json(
-        { error: 'Vehicle not found' },
-        { status: 400 }
-      );
+      return apiError('Vehicle not found', 400);
     }
 
     if (!vehicle.available) {
-      return NextResponse.json(
-        { error: 'Vehicle is not available for booking' },
-        { status: 400 }
-      );
+      return apiError('Vehicle is not available for booking', 400);
     }
 
     if (vehicle.bookings.length > 0) {
-      return NextResponse.json(
-        { error: 'Vehicle is already booked for these dates' },
-        { status: 400 }
-      );
+      return apiError('Vehicle is already booked for these dates', 400);
     }
 
     // Create booking
@@ -228,27 +196,30 @@ export async function POST(request: NextRequest) {
       console.error('Failed to send notifications:', error);
     }
 
-    return NextResponse.json(booking);
+    return apiSuccess(booking, 'Booking created successfully');
   } catch (error) {
     console.error('Failed to create booking:', error);
-    return NextResponse.json(
-      { error: 'An unexpected error occurred while processing your booking' },
-      { status: 500 }
-    );
+    return apiError('An unexpected error occurred while processing your booking', 500);
   }
 }
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+    const contentType = request.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      return apiError('Content-Type must be application/json', 415);
     }
 
-    const body = await request.json();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return apiError('Unauthorized', 401);
+    }
+
+    const body = await request.json().catch(() => null);
+    
+    if (!body) {
+      return apiError('Invalid JSON in request body', 400);
+    }
     
     const booking = await prisma.booking.update({
       where: { id: body.bookingId },
@@ -273,12 +244,9 @@ export async function PATCH(request: NextRequest) {
       });
     }
 
-    return NextResponse.json(booking);
+    return apiSuccess(booking, 'Booking updated successfully');
   } catch (error) {
     console.error('Failed to update booking:', error);
-    return NextResponse.json(
-      { error: 'Failed to update booking' },
-      { status: 500 }
-    );
+    return apiError('An unexpected error occurred while updating the booking', 500);
   }
 }
