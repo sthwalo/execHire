@@ -185,11 +185,15 @@ async function main() {
   }
 
   // Create admin user
+  const bcrypt = require('bcrypt');
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash('admin123', saltRounds);
+
   await prisma.user.create({
     data: {
       email: 'admin@execuhire.com',
-      name: 'Admin User',
-      password: 'admin123', // In production, this should be hashed
+      name: 'Admin',
+      password: hashedPassword,
       role: 'ADMIN'
     }
   });
