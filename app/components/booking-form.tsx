@@ -8,6 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useSession } from "next-auth/react";
 import {
   Form,
   FormControl,
@@ -23,12 +24,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { format, differenceInDays } from "date-fns";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent } from "@/components/ui/card";
-import { format, differenceInDays } from "date-fns";
-import { CalendarIcon, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 // Define the form validation schema
 const bookingFormSchema = z.object({
@@ -41,41 +42,31 @@ const bookingFormSchema = z.object({
   endDate: z.date({
     required_error: "Please select an end date.",
   }),
-}).refine((data) => data.endDate >= data.startDate, {
-  message: "End date must be after start date",
+}).refine(data => data.startDate <= data.endDate, {
+  message: "End date cannot be earlier than start date",
   path: ["endDate"],
 });
 
-// Infer the form type from the schema
 type BookingFormValues = z.infer<typeof bookingFormSchema>;
 
-type Vehicle = {
-  id: string;
-  name: string;
-  price: string;
-  pricePerDay: number;
-  image: string;
-  category: string;
-  description: string;
-  available: boolean;
-};
+interface BookingFormProps {
+  selectedVehicleId?: string | null;
+}
 
-export function BookingForm() {
+export function BookingForm({ selectedVehicleId }: BookingFormProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { toast } = useToast();
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedDates, setSelectedDates] = useState<{
-    startDate: Date | null;
-    endDate: Date | null;
-  }>({
-    startDate: null,
-    endDate: null,
-  });
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [totalPrice, setTotalPrice] = useState<number>(0);
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(bookingFormSchema),
+    defaultValues: {
+      vehicleId: selectedVehicleId || '',
+    },
   });
 
   // Fetch vehicles from the API
@@ -83,10 +74,11 @@ export function BookingForm() {
     const fetchVehicles = async () => {
       try {
         const response = await fetch('/api/vehicles');
+        if (!response.ok) throw new Error('Failed to fetch vehicles');
         const data = await response.json();
-        setVehicles(data.filter((v: Vehicle) => v.available));
+        setVehicles(data);
       } catch (error) {
-        console.error('Failed to fetch vehicles:', error);
+        console.error('Error fetching vehicles:', error);
         toast({
           title: 'Error',
           description: 'Failed to load vehicles. Please try again.',
@@ -110,11 +102,25 @@ export function BookingForm() {
   }, [form.watch(['startDate', 'endDate', 'vehicleId']), vehicles]);
 
   const onSubmit = async (values: BookingFormValues) => {
+    if (!session?.user) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please sign in to make a booking.',
+        variant: 'destructive',
+      });
+      router.push('/auth/signin');
+      return;
+    }
+
     setLoading(true);
     try {
       const { vehicleId, startDate, endDate } = values;
       const vehicle = vehicles.find(v => v.id === vehicleId);
       
+      if (!vehicle) {
+        throw new Error('Vehicle not found');
+      }
+
       const response = await fetch('/api/bookings', {
         method: 'POST',
         headers: {
@@ -126,10 +132,12 @@ export function BookingForm() {
           endDate: format(endDate, 'yyyy-MM-dd'),
           totalAmount: totalPrice,
         }),
+        credentials: 'include', // Add this to include cookies
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create booking');
+        const errorData = await response.json().catch(() => ({ error: 'Failed to create booking' }));
+        throw new Error(errorData.error || 'Failed to create booking');
       }
 
       const booking = await response.json();
@@ -146,11 +154,12 @@ export function BookingForm() {
         description: 'Your booking has been confirmed! Check your email for details.',
       });
 
-    } catch (error) {
+      router.push('/bookings');
+    } catch (error: any) {
       console.error('Booking failed:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to create booking. Please try again.',
+        title: 'Booking Failed',
+        description: error.message || 'Something went wrong. Please try again.',
         variant: 'destructive',
       });
     } finally {
@@ -159,153 +168,143 @@ export function BookingForm() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 space-y-8">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-2xl font-semibold mb-6">Book Your Vehicle</h2>
+        
+        <FormField
+          control={form.control}
+          name="vehicleId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Select Vehicle</FormLabel>
+              <Select
+                disabled={loading}
+                onValueChange={field.onChange}
+                value={field.value}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a vehicle" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {vehicles.map((vehicle) => (
+                    <SelectItem key={vehicle.id} value={vehicle.id}>
+                      {vehicle.name} - {vehicle.price}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="grid gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
-            name="vehicleId"
+            name="startDate"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Vehicle</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a vehicle" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {vehicles.map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id}>
-                        <div className="flex justify-between items-center w-full">
-                          <span>{vehicle.name}</span>
-                          <span className="text-muted-foreground">
-                            ${vehicle.pricePerDay}/day
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <FormItem className="flex flex-col">
+                <FormLabel>Start Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date < new Date() || date < new Date("1900-01-01")
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="startDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Start Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date < new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="endDate"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>End Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date < new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {totalPrice > 0 && (
-            <Card className="mt-4">
-              <CardContent className="pt-6">
-                <div className="flex justify-between items-center">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Total Price</p>
-                    <p className="text-sm text-muted-foreground">
-                      Including all taxes and fees
-                    </p>
-                  </div>
-                  <p className="text-2xl font-bold">${totalPrice}</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing
-              </>
-            ) : (
-              'Confirm Booking'
+          <FormField
+            control={form.control}
+            name="endDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>End Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-full pl-3 text-left font-normal",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, "PPP")
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      disabled={(date) =>
+                        date < new Date() || date < new Date("1900-01-01")
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
             )}
-          </Button>
-        </form>
-      </Form>
-    </div>
+          />
+        </div>
+
+        {totalPrice > 0 && (
+          <div className="text-lg font-semibold">
+            Total Price: ${totalPrice.toFixed(2)}
+          </div>
+        )}
+
+        <Button type="submit" className="w-full" disabled={loading}>
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            'Book Now'
+          )}
+        </Button>
+      </form>
+    </Form>
   );
 }

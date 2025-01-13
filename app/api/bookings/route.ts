@@ -62,18 +62,26 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    
+    if (!session?.user?.email) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'You must be logged in to make a booking' },
         { status: 401 }
       );
     }
 
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
     
+    if (!body) {
+      return NextResponse.json(
+        { error: 'Invalid request body' },
+        { status: 400 }
+      );
+    }
+
     // Get user from session
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email! },
+      where: { email: session.user.email },
     });
 
     if (!user) {
@@ -83,10 +91,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate required fields
+    if (!body.vehicleId || !body.startDate || !body.endDate || !body.totalAmount) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
     // Validate dates
     const startDate = new Date(body.startDate);
     const endDate = new Date(body.endDate);
     const now = new Date();
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid date format' },
+        { status: 400 }
+      );
+    }
 
     if (startDate < now) {
       return NextResponse.json(
@@ -149,10 +172,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate total amount based on price per day
-    const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const totalAmount = vehicle.pricePerDay * days;
-
     // Create booking
     const booking = await prisma.booking.create({
       data: {
@@ -160,12 +179,18 @@ export async function POST(request: NextRequest) {
         vehicleId: body.vehicleId,
         startDate,
         endDate,
-        totalAmount,
+        totalAmount: body.totalAmount,
         status: 'PENDING',
       },
       include: {
         vehicle: true,
-        user: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
       },
     });
 
@@ -174,35 +199,40 @@ export async function POST(request: NextRequest) {
       data: {
         bookingId: booking.id,
         userId: user.id,
-        amount: totalAmount,
+        amount: body.totalAmount,
         status: 'PENDING',
       },
     });
 
-    // Send confirmation email
-    await sendBookingConfirmation({
-      customerName: user.name || 'Valued Customer',
-      customerEmail: user.email,
-      vehicleName: vehicle.name,
-      startDate: body.startDate,
-      endDate: body.endDate,
-      totalAmount,
-      bookingId: booking.id,
-    });
+    try {
+      // Send confirmation email
+      await sendBookingConfirmation({
+        customerName: user.name || 'Valued Customer',
+        customerEmail: user.email,
+        vehicleName: vehicle.name,
+        startDate: body.startDate,
+        endDate: body.endDate,
+        totalAmount: body.totalAmount,
+        bookingId: booking.id,
+      });
 
-    // Create notification
-    await prisma.notification.create({
-      data: {
-        userId: user.id,
-        message: `Your booking for ${vehicle.name} has been confirmed. Booking ID: ${booking.id}`,
-      },
-    });
+      // Create notification
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
+          message: `Your booking for ${vehicle.name} has been confirmed. Booking ID: ${booking.id}`,
+        },
+      });
+    } catch (error) {
+      // Log but don't fail the booking if notifications fail
+      console.error('Failed to send notifications:', error);
+    }
 
     return NextResponse.json(booking);
   } catch (error) {
     console.error('Failed to create booking:', error);
     return NextResponse.json(
-      { error: 'Failed to create booking' },
+      { error: 'An unexpected error occurred while processing your booking' },
       { status: 500 }
     );
   }
