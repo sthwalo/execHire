@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { getCachedVehicle, setCachedVehicle, invalidateVehicleCache } from '@/src/lib/redis';
-import { apiResponse } from '@/lib/api-response';
+import { prisma } from '../../../prisma/client';
+import { getCachedVehicle, setCachedVehicle, invalidateVehicleCache } from '../../../lib/redis';
+import { Vehicle } from '@prisma/client';
 
 export async function GET(
   request: NextRequest,
@@ -13,7 +13,7 @@ export async function GET(
     // Try to get from cache first
     const cachedVehicle = await getCachedVehicle(id);
     if (cachedVehicle) {
-      return apiResponse({ data: cachedVehicle });
+      return NextResponse.json({ data: cachedVehicle });
     }
 
     // If not in cache, get from database
@@ -32,16 +32,16 @@ export async function GET(
     });
 
     if (!vehicle) {
-      return apiResponse({ error: 'Vehicle not found' }, 404);
+      return NextResponse.json({ error: 'Vehicle not found' }, { status: 404 });
     }
 
     // Cache the vehicle data
     await setCachedVehicle(vehicle);
 
-    return apiResponse({ data: vehicle });
+    return NextResponse.json({ data: vehicle });
   } catch (error) {
     console.error('Error fetching vehicle:', error);
-    return apiResponse({ error: 'Internal server error' }, 500);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -71,10 +71,10 @@ export async function PUT(
     // Invalidate cache after update
     await invalidateVehicleCache(id);
 
-    return apiResponse({ data: updatedVehicle });
+    return NextResponse.json({ data: updatedVehicle });
   } catch (error) {
     console.error('Error updating vehicle:', error);
-    return apiResponse({ error: 'Internal server error' }, 500);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -92,9 +92,9 @@ export async function DELETE(
     // Invalidate cache after deletion
     await invalidateVehicleCache(id);
 
-    return apiResponse({ message: 'Vehicle deleted successfully' });
+    return NextResponse.json({ message: 'Vehicle deleted successfully' });
   } catch (error) {
     console.error('Error deleting vehicle:', error);
-    return apiResponse({ error: 'Internal server error' }, 500);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
