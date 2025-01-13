@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useSession } from "next-auth/react";
+import { Vehicle } from "@/src/types";
 import {
   Form,
   FormControl,
@@ -93,10 +94,10 @@ export function BookingForm({ selectedVehicleId }: BookingFormProps) {
   useEffect(() => {
     const values = form.getValues();
     if (values.startDate && values.endDate && values.vehicleId) {
-      const vehicle = vehicles.find(v => v.id === values.vehicleId);
-      if (vehicle) {
+      const selectedVehicle = vehicles.find(v => v.id === values.vehicleId);
+      if (selectedVehicle) {
         const days = differenceInDays(values.endDate, values.startDate) + 1;
-        setTotalPrice(vehicle.pricePerDay * days);
+        setTotalPrice(selectedVehicle.pricePerDay * days);
       }
     }
   }, [form.watch(['startDate', 'endDate', 'vehicleId']), vehicles]);
@@ -115,9 +116,9 @@ export function BookingForm({ selectedVehicleId }: BookingFormProps) {
     setLoading(true);
     try {
       const { vehicleId, startDate, endDate } = values;
-      const vehicle = vehicles.find(v => v.id === vehicleId);
+      const bookingVehicle = vehicles.find(v => v.id === vehicleId);
       
-      if (!vehicle) {
+      if (!bookingVehicle) {
         throw new Error('Vehicle not found');
       }
 
@@ -142,7 +143,28 @@ export function BookingForm({ selectedVehicleId }: BookingFormProps) {
 
       const booking = await response.json();
       
-      dispatch(setSelectedVehicle(vehicleId));
+      // Fetch the vehicle details before dispatching
+      const vehicleResponse = await fetch(`/api/vehicles/${vehicleId}`);
+      if (!vehicleResponse.ok) {
+        throw new Error('Failed to fetch vehicle details');
+      }
+      const vehicleData = await vehicleResponse.json();
+      
+      // Transform the vehicle data to match the expected Vehicle type
+      const transformedVehicle: Vehicle = {
+        id: vehicleData.id,
+        name: vehicleData.name,
+        image: vehicleData.image,
+        images: vehicleData.images || [],
+        price: vehicleData.price,
+        pricePerDay: vehicleData.pricePerDay,
+        specs: vehicleData.specs || [],
+        description: vehicleData.description || '',
+        category: vehicleData.category || 'STANDARD',
+        available: vehicleData.available ?? true
+      };
+      
+      dispatch(setSelectedVehicle(transformedVehicle));
       dispatch(setBookingDates({
         startDate: format(startDate, 'yyyy-MM-dd'),
         endDate: format(endDate, 'yyyy-MM-dd'),
