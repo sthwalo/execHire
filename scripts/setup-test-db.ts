@@ -7,16 +7,16 @@ async function setupTestDatabase() {
   try {
     // Drop test database if it exists
     try {
-      await execAsync('dropdb execuhire_test --if-exists');
+      await execAsync('PGPASSWORD=Exec10Luxury dropdb -U sthwalonyoni execuhire_test --if-exists');
     } catch (error) {
       console.log('Database does not exist, proceeding with creation');
     }
 
     // Create test database
-    await execAsync('createdb execuhire_test');
+    await execAsync('PGPASSWORD=Exec10Luxury createdb -U sthwalonyoni execuhire_test');
 
     // Run migrations
-    process.env.DATABASE_URL = 'postgresql://postgres:postgres@localhost:5432/execuhire_test';
+    process.env.DATABASE_URL = 'postgresql://sthwalonyoni:Exec10Luxury@localhost:5432/execuhire_test';
     await execAsync('npx prisma migrate deploy');
 
     console.log('Test database setup completed successfully');
