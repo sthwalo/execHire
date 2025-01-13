@@ -5,11 +5,11 @@ import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { setFeaturedVehicles, setSelectedVehicle } from '@/src/store/features/vehicle/vehicleSlice';
 import { useRouter } from 'next/navigation';
 import { createWhatsAppLink } from '@/lib/whatsapp';
-
 import { FeaturedCarsSection } from './featured-cars/featured-cars-section';
+import { Vehicle } from '@prisma/client';
 
 interface FeaturedCarsProps {
-  vehicles: any[];
+  vehicles: Vehicle[];
 }
 
 export default function FeaturedCars() {
@@ -21,11 +21,11 @@ export default function FeaturedCars() {
     // Select top 4 vehicles for featured section
     const featured = vehicles
       .filter(vehicle => vehicle.available)
-      .slice(0, 4);
+      .slice(0, 4) as unknown as Vehicle[];
     dispatch(setFeaturedVehicles(featured));
   }, [dispatch, vehicles]);
 
-  const handleBookNow = (vehicle: any) => {
+  const handleBookNow = (vehicle: Vehicle) => {
     dispatch(setSelectedVehicle(vehicle));
     router.push('/booking');
   };
@@ -47,6 +47,6 @@ export default function FeaturedCars() {
   }
 
   return (
-    <FeaturedCarsSection vehicles={featuredVehicles} />
+    <FeaturedCarsSection vehicles={featuredVehicles || []} />
   );
 }
