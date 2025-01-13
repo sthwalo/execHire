@@ -1,6 +1,7 @@
 const axios = require('axios').default;
 
 interface Vehicle {
+  pricePerDay: number;
   id?: string;
   name: string;
   image: string;

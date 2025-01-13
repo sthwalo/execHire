@@ -33,71 +33,174 @@ ExecuHire is a modern, full-stack vehicle rental platform built with Next.js 13,
   - Real-time notifications
   - Interactive vehicle gallery
 
-## 🛠️ Tech Stack
+## 📋 Prerequisites
 
-- **Frontend**
-  - Next.js 13 (App Router)
-  - TypeScript
-  - Tailwind CSS
-  - Shadcn UI Components
-  - Redux Toolkit
+- Node.js 18.x or higher
+- PostgreSQL 14.x or higher
+- Stripe account for payments
+- AWS S3 bucket for image storage (optional)
 
-- **Backend**
-  - Node.js
-  - Prisma ORM
-  - PostgreSQL
-  - NextAuth.js
-
-- **APIs & Services**
-  - REST API
-  - Resend (Email)
-  - Image Optimization
-  - Video Streaming
-
-## 📦 Installation
+## 🛠 Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/execuhire.git
-   cd execuhire
-   ```
+```bash
+git clone https://github.com/yourusername/execuhire.git
+cd execuhire
+```
 
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
 3. Set up environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-   Fill in your environment variables in `.env`
+```bash
+cp .env.example .env
+```
 
 4. Set up the database:
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   npx prisma db seed
-   ```
+```bash
+npx prisma migrate dev
+npx prisma db seed
+```
 
 5. Start the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+```
 
-## 🔧 Environment Variables
+## 🔐 Environment Variables
 
 ```env
 # Database
 DATABASE_URL="postgresql://user:password@localhost:5432/execuhire"
 
-# NextAuth
-NEXTAUTH_SECRET="your-nextauth-secret"
+# Authentication
 NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key"
 
-# Email (Resend)
-RESEND_API_KEY="re_xxxx_your_api_key_here"
+# Stripe
+STRIPE_SECRET_KEY="sk_test_..."
+STRIPE_PUBLISHABLE_KEY="pk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+
+# AWS S3 (Optional)
+AWS_ACCESS_KEY_ID="your-access-key"
+AWS_SECRET_ACCESS_KEY="your-secret-key"
+AWS_REGION="your-region"
+AWS_BUCKET_NAME="your-bucket-name"
 ```
+
+## 🚀 Deployment
+
+### Production Deployment
+
+1. Build the application:
+```bash
+npm run build
+```
+
+2. Start the production server:
+```bash
+npm start
+```
+
+### Deployment Platforms
+
+- **Vercel** (Recommended):
+  - Connect your GitHub repository
+  - Configure environment variables
+  - Deploy automatically
+
+- **AWS/DigitalOcean**:
+  - Set up a Ubuntu 20.04 LTS server
+  - Install Node.js and PostgreSQL
+  - Use PM2 for process management
+  - Configure Nginx as reverse proxy
+
+## 🔄 Caching Strategy
+
+1. **Browser Caching**:
+   - Static assets cached for 1 year
+   - API responses cached based on Cache-Control headers
+
+2. **Server Caching**:
+   - Database query results cached using Redis
+   - Session data cached in Redis
+   - Static pages cached at build time
+
+## 📚 API Documentation
+
+### Authentication
+
+```typescript
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout
+```
+
+### Vehicles
+
+```typescript
+GET /api/vehicles
+GET /api/vehicles/:id
+POST /api/vehicles (Admin)
+PUT /api/vehicles/:id (Admin)
+DELETE /api/vehicles/:id (Admin)
+```
+
+### Bookings
+
+```typescript
+GET /api/bookings
+POST /api/bookings
+GET /api/bookings/:id
+PUT /api/bookings/:id
+DELETE /api/bookings/:id
+```
+
+## 🔍 Performance Optimization
+
+1. **Image Optimization**:
+   - Next.js Image component with automatic optimization
+   - WebP format support
+   - Responsive sizes
+   - Lazy loading
+
+2. **Code Optimization**:
+   - Route-based code splitting
+   - Tree shaking
+   - Minification
+   - Compression
+
+3. **Data Fetching**:
+   - Server-side rendering for SEO
+   - Incremental Static Regeneration
+   - SWR for client-side data fetching
+
+## 📈 Monitoring
+
+1. **Error Tracking**:
+   - Sentry integration
+   - Custom error boundaries
+   - API error logging
+
+2. **Performance Monitoring**:
+   - Next.js Analytics
+   - Custom performance metrics
+   - Real user monitoring
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 📚 Documentation
 
@@ -116,22 +219,6 @@ Run e2e tests:
 ```bash
 npm run test:e2e
 ```
-
-## 🚀 Deployment
-
-1. Build the application:
-   ```bash
-   npm run build
-   ```
-
-2. Start the production server:
-   ```bash
-   npm start
-   ```
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👥 Contributing
 
