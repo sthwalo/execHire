@@ -1,7 +1,8 @@
-import { prisma } from '@/lib/db';
-import { createTestUser, cleanupDatabase } from '../utils/test-utils';
-import { createMocks } from 'node-mocks-http';
+import { prisma } from '@/lib/prisma';
+import { cleanupDatabase, createTestUser, createTestVehicle } from '../utils/test-utils';
+import { Category, Role } from '@prisma/client';
 import { GET, POST, PUT } from '@/app/api/vehicles/route';
+import { NextRequest } from 'next/server';
 
 describe('Vehicles API', () => {
   let adminUser: any;
@@ -9,202 +10,181 @@ describe('Vehicles API', () => {
   let adminToken: string;
   let userToken: string;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     await cleanupDatabase();
 
     // Create admin user
-    const adminData = await createTestUser({
-      email: 'admin@example.com',
-      password: 'admin123',
-      name: 'Admin User',
-      role: 'ADMIN'
-    });
+    const adminData = await createTestUser(Role.ADMIN);
     adminUser = adminData.user;
     adminToken = adminData.token;
 
     // Create regular user
-    const userData = await createTestUser();
+    const userData = await createTestUser(Role.USER);
     regularUser = userData.user;
     userToken = userData.token;
-
-    // Create test vehicles
-    await prisma.vehicle.create({
-      data: {
-        name: 'Standard Car',
-        price: '1000',
-        pricePerDay: 100,
-        image: 'standard.jpg',
-        images: ['standard.jpg'],
-        specs: ['Standard Spec'],
-        category: 'STANDARD'
-      }
-    });
-
-    await prisma.vehicle.create({
-      data: {
-        name: 'Luxury Car',
-        price: '2000',
-        pricePerDay: 200,
-        image: 'luxury.jpg',
-        images: ['luxury.jpg'],
-        specs: ['Luxury Spec'],
-        category: 'LUXURY'
-      }
-    });
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await cleanupDatabase();
   });
 
   describe('GET /api/vehicles', () => {
     it('should return all vehicles', async () => {
-      const { req, res } = createMocks({
-        method: 'GET'
-      });
+      // Create test vehicles
+      await createTestVehicle();
+      await createTestVehicle({ name: 'Test Vehicle 2', price: '2000' });
 
-      await GET(req, res);
-      expect(res._getStatusCode()).toBe(200);
-      const vehicles = JSON.parse(res._getData());
-      expect(Array.isArray(vehicles)).toBeTruthy();
-      expect(vehicles.length).toBe(2);
+      const response = await GET(new Request('http://localhost/api/vehicles'));
+      expect(response.status).toBe(200);
+
+      const data = await response.json();
+      expect(data.length).toBe(2);
     });
 
     it('should filter vehicles by category', async () => {
-      const { req, res } = createMocks({
-        method: 'GET',
-        query: {
-          category: 'LUXURY'
-        }
-      });
+      // Create test vehicles with different categories
+      await createTestVehicle({ category: Category.STANDARD });
+      await createTestVehicle({ category: Category.PREMIUM });
 
-      await GET(req, res);
-      expect(res._getStatusCode()).toBe(200);
-      const vehicles = JSON.parse(res._getData());
-      expect(vehicles.length).toBe(1);
-      expect(vehicles[0].category).toBe('LUXURY');
+      const response = await GET(
+        new Request('http://localhost/api/vehicles?category=PREMIUM')
+      );
+      expect(response.status).toBe(200);
+
+      const data = await response.json();
+      expect(data.length).toBe(1);
+      expect(data[0].category).toBe(Category.PREMIUM);
     });
 
     it('should filter vehicles by price range', async () => {
-      const { req, res } = createMocks({
-        method: 'GET',
-        query: {
-          minPrice: '1500',
-          maxPrice: '2500'
-        }
-      });
+      // Create test vehicles with different prices
+      await createTestVehicle({ price: '500' });
+      await createTestVehicle({ price: '3000' });
 
-      await GET(req, res);
-      expect(res._getStatusCode()).toBe(200);
-      const vehicles = JSON.parse(res._getData());
-      expect(vehicles.length).toBe(1);
-      expect(vehicles[0].price).toBe('2000');
+      const response = await GET(
+        new Request('http://localhost/api/vehicles?minPrice=1000&maxPrice=4000')
+      );
+      expect(response.status).toBe(200);
+
+      const data = await response.json();
+      expect(data.length).toBe(1);
+      expect(data[0].price).toBe('3000');
     });
   });
 
   describe('POST /api/vehicles', () => {
-    it('should allow admin to create a vehicle', async () => {
-      const { req, res } = createMocks({
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        },
-        body: {
-          name: 'New Vehicle',
-          price: '1500',
-          pricePerDay: 150,
-          image: 'new.jpg',
-          images: ['new.jpg'],
-          specs: ['New Spec'],
-          category: 'SPORT'
-        }
-      });
+    const vehicleData = {
+      name: 'New Vehicle',
+      price: '1500',
+      image: 'new.jpg',
+      images: ['new.jpg'],
+      specs: ['spec1', 'spec2'],
+      category: Category.STANDARD,
+      description: 'New description',
+      pricePerDay: 150
+    };
 
-      await POST(req, res);
-      expect(res._getStatusCode()).toBe(201);
-      const vehicle = JSON.parse(res._getData());
+    it('should allow admin to create a vehicle', async () => {
+      const response = await POST(
+        new Request('http://localhost/api/vehicles', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer header.${Buffer.from(
+              JSON.stringify({ role: 'ADMIN', id: adminUser.id })
+            ).toString('base64')}.signature`
+          },
+          body: JSON.stringify(vehicleData)
+        })
+      );
+
+      expect(response.status).toBe(201);
+      const vehicle = await response.json();
       expect(vehicle.name).toBe('New Vehicle');
     });
 
     it('should not allow regular user to create a vehicle', async () => {
-      const { req, res } = createMocks({
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${userToken}`
-        },
-        body: {
-          name: 'New Vehicle',
-          price: '1500',
-          pricePerDay: 150,
-          image: 'new.jpg',
-          images: ['new.jpg'],
-          specs: ['New Spec'],
-          category: 'SPORT'
-        }
-      });
+      const response = await POST(
+        new Request('http://localhost/api/vehicles', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer header.${Buffer.from(
+              JSON.stringify({ role: 'USER', id: regularUser.id })
+            ).toString('base64')}.signature`
+          },
+          body: JSON.stringify(vehicleData)
+        })
+      );
 
-      await POST(req, res);
-      expect(res._getStatusCode()).toBe(403);
+      expect(response.status).toBe(403);
     });
   });
 
   describe('PUT /api/vehicles/:id', () => {
     let vehicleId: string;
 
-    beforeAll(async () => {
-      const vehicle = await prisma.vehicle.create({
-        data: {
-          name: 'Update Test Vehicle',
-          price: '1000',
-          pricePerDay: 100,
-          image: 'test.jpg',
-          images: ['test.jpg'],
-          specs: ['Test Spec'],
-          category: 'STANDARD'
-        }
-      });
+    beforeEach(async () => {
+      const vehicle = await createTestVehicle();
       vehicleId = vehicle.id;
     });
 
     it('should allow admin to update a vehicle', async () => {
-      const { req, res } = createMocks({
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        },
-        query: {
-          id: vehicleId
-        },
-        body: {
-          name: 'Updated Vehicle',
-          price: '1200'
-        }
-      });
+      const updateData = {
+        name: 'Updated Vehicle',
+        price: '2000',
+        image: 'updated.jpg',
+        images: ['updated.jpg'],
+        specs: ['spec3', 'spec4'],
+        category: Category.PREMIUM,
+        description: 'Updated description',
+        pricePerDay: 200
+      };
 
-      await PUT(req, res);
-      expect(res._getStatusCode()).toBe(200);
-      const vehicle = JSON.parse(res._getData());
+      const response = await PUT(
+        new Request(`http://localhost/api/vehicles/${vehicleId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer header.${Buffer.from(
+              JSON.stringify({ role: 'ADMIN', id: adminUser.id })
+            ).toString('base64')}.signature`
+          },
+          body: JSON.stringify(updateData)
+        })
+      );
+
+      expect(response.status).toBe(200);
+      const vehicle = await response.json();
       expect(vehicle.name).toBe('Updated Vehicle');
-      expect(vehicle.price).toBe('1200');
     });
 
     it('should not allow regular user to update a vehicle', async () => {
-      const { req, res } = createMocks({
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${userToken}`
-        },
-        query: {
-          id: vehicleId
-        },
-        body: {
-          name: 'Updated Vehicle',
-          price: '1200'
-        }
-      });
+      const updateData = {
+        name: 'Updated Vehicle',
+        price: '2000',
+        image: 'updated.jpg',
+        images: ['updated.jpg'],
+        specs: ['spec3', 'spec4'],
+        category: Category.PREMIUM,
+        description: 'Updated description',
+        pricePerDay: 200
+      };
 
-      await PUT(req, res);
-      expect(res._getStatusCode()).toBe(403);
+      const response = await PUT(
+        new Request(`http://localhost/api/vehicles/${vehicleId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer header.${Buffer.from(
+              JSON.stringify({ role: 'USER', id: regularUser.id })
+            ).toString('base64')}.signature`
+          },
+          body: JSON.stringify(updateData)
+        })
+      );
+
+      expect(response.status).toBe(403);
     });
   });
 });

@@ -1,31 +1,12 @@
 import '@testing-library/jest-dom';
 
-global.Response = class Response {
-  constructor(body, init) {
-    this.body = body;
-    this.init = init;
-    this.status = init?.status || 200;
-    this.ok = this.status >= 200 && this.status < 300;
-    this.statusText = init?.statusText || '';
-    this.headers = new Headers(init?.headers);
-  }
-
-  json() {
-    return Promise.resolve(JSON.parse(this.body));
-  }
-
-  text() {
-    return Promise.resolve(this.body);
-  }
-};
-
 global.Headers = class Headers {
   constructor(init) {
     this._headers = new Map();
     if (init) {
-      Object.entries(init).forEach(([key, value]) => {
+      for (const [key, value] of Object.entries(init)) {
         this._headers.set(key.toLowerCase(), value);
-      });
+      }
     }
   }
 
@@ -38,20 +19,55 @@ global.Headers = class Headers {
   }
 };
 
+class Response {
+  constructor(body, init) {
+    this.body = body;
+    this.init = init;
+    this.status = init?.status || 200;
+    this.ok = this.status >= 200 && this.status < 300;
+    this.statusText = init?.statusText || '';
+    this.headers = new Headers(init?.headers);
+  }
+
+  json() {
+    return Promise.resolve(
+      typeof this.body === 'string' ? JSON.parse(this.body) : this.body
+    );
+  }
+
+  text() {
+    return Promise.resolve(
+      typeof this.body === 'string' ? this.body : JSON.stringify(this.body)
+    );
+  }
+}
+
+global.Response = Response;
+
+jest.mock('next/server', () => {
+  return {
+    NextResponse: {
+      json: (data, init) => {
+        return new Response(data, init);
+      }
+    }
+  };
+});
+
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
       push: jest.fn(),
       replace: jest.fn(),
-      prefetch: jest.fn(),
+      refresh: jest.fn(),
       back: jest.fn(),
+      forward: jest.fn(),
+      prefetch: jest.fn()
     };
   },
   useSearchParams() {
-    return {
-      get: jest.fn(),
-    };
-  },
+    return new URLSearchParams();
+  }
 }));
 
 jest.mock('next/headers', () => ({
@@ -59,7 +75,26 @@ jest.mock('next/headers', () => ({
     return {
       get: jest.fn(),
       set: jest.fn(),
-      delete: jest.fn(),
+      delete: jest.fn()
     };
-  },
+  }
+}));
+
+jest.mock('next-auth/jwt', () => ({
+  getToken: jest.fn().mockImplementation((req) => {
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return null;
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      return {
+        ...decoded,
+        sub: decoded.id
+      };
+    } catch {
+      return null;
+    }
+  })
 }));
