@@ -6,7 +6,22 @@ import { $Enums } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 export default async function Home() {
-  let featuredVehicles: { id: string; name: string; image: string; images: string[]; price: string; pricePerDay: Decimal; specs: string[]; description: string | null; category: $Enums.Category; available: boolean; featured: boolean; createdAt: Date; updatedAt: Date; }[] = [];
+  let featuredVehicles: { 
+    id: string; 
+    name: string; 
+    image: string; 
+    images: string[]; 
+    price: string; 
+    pricePerDay: Decimal; 
+    pricePerHour: Decimal; 
+    specs: string[]; 
+    description: string | null; 
+    category: $Enums.Category; 
+    available: boolean; 
+    featured: boolean; 
+    createdAt: Date; 
+    updatedAt: Date; 
+  }[] = [];
   
   try {
     // Get vehicles marked as featured based on specific criteria
@@ -23,8 +38,21 @@ export default async function Home() {
         pricePerDay: 'desc'
       },
       take: 4,
-      include: {
-        reviews: true
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        images: true,
+        price: true,
+        pricePerDay: true,
+        pricePerHour: true,
+        specs: true,
+        description: true,
+        category: true,
+        available: true,
+        featured: true,
+        createdAt: true,
+        updatedAt: true
       }
     });
 

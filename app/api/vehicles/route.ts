@@ -11,7 +11,9 @@ export async function GET(request: NextRequest) {
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
 
-    let whereClause: any = {};
+    let whereClause: any = {
+      available: true // Only return available vehicles
+    };
 
     if (category) {
       whereClause.category = category;
@@ -27,8 +29,24 @@ export async function GET(request: NextRequest) {
     const vehicles = await prisma.vehicle.findMany({
       where: whereClause,
       orderBy: {
-        createdAt: 'desc',
+        pricePerDay: 'asc', // Order by price
       },
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        images: true,
+        price: true,
+        pricePerDay: true,
+        pricePerHour: true,
+        specs: true,
+        description: true,
+        category: true,
+        available: true,
+        featured: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
 
     return NextResponse.json(vehicles);
