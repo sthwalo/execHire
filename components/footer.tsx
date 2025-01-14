@@ -1,4 +1,4 @@
-import { Car, Instagram } from 'lucide-react';
+import { Car, Instagram, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 export function Footer() {
@@ -50,6 +50,15 @@ export function Footer() {
           <div>
             <h3 className="font-semibold mb-4">Connect With Us</h3>
             <div className="flex items-center gap-4">
+              <a
+                href={`https://wa.me/27733366385?text=${encodeURIComponent('Hello, I would like to inquire about booking a vehicle.')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-[#25D366] transition-colors"
+                aria-label="Chat with us on WhatsApp"
+              >
+                <MessageSquare className="h-5 w-5" />
+              </a>
               <a
                 href="https://www.tiktok.com/@execuhire?_t=ZM-8swb42mNWGU&_r=1"
                 target="_blank"
