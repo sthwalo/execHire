@@ -16,6 +16,7 @@ This guide covers common issues you might encounter while setting up or running 
 10. [Module Not Found Errors](#module-not-found-errors)
 11. [Dependency Resolution Errors](#dependency-resolution-errors)
 12. [Type System Issues](#type-system-issues)
+13. [Communication Features](#communication-features)
 
 ## Database Issues
 
@@ -621,6 +622,66 @@ Note: Using --legacy-peer-deps is a temporary solution. For long-term stability,
 **Files Modified**:
 - app/components/featured-cars.tsx
 - src/types/index.ts
+
+## Communication Features
+
+### WhatsApp Integration
+
+**Component Locations**:
+- Hero Section (`app/page.tsx`)
+- Fleet Page (`app/fleet/page.tsx`)
+- Navigation Header (`components/navigation.tsx`)
+- Footer (`components/footer.tsx`)
+
+**Features**:
+1. Vehicle-specific inquiries
+2. General fleet inquiries
+3. Direct chat access from header
+4. Dual-action buttons in fleet page
+
+**Common Issues**:
+
+**Problem**: WhatsApp links not opening on mobile devices
+**Solution**:
+1. Ensure the phone number format is correct (27733366385)
+2. URL encode all message parameters
+3. Use the correct WhatsApp URL schema: `https://wa.me/`
+
+**Problem**: Dual-action buttons misaligned
+**Solution**:
+1. Check flex container classes
+2. Ensure proper gap spacing
+3. Verify responsive classes for mobile view
+
+**Best Practices**:
+1. Always include country code in WhatsApp number
+2. Pre-fill messages with context
+3. Use `target="_blank"` and `rel="noopener noreferrer"`
+4. Maintain consistent styling with brand colors
+5. Ensure mobile-friendly touch targets
+
+### Booking System Integration
+
+**Problem**: Conflict between WhatsApp and email booking flows
+**Solution**:
+1. Clear button labeling ("Book Now" vs "More Info")
+2. Consistent user flow across all pages
+3. Maintain session state for booking process
+4. Handle unavailable vehicles appropriately
+
+### UI/UX Guidelines
+
+1. Social Media Links:
+   - Consistent positioning in header and footer
+   - Clear hover states
+   - Proper spacing between icons
+   - Accessible click/tap targets
+
+2. Call-to-Action Buttons:
+   - Primary action: Book Now (Email)
+   - Secondary action: More Info (WhatsApp)
+   - Clear visual hierarchy
+   - Responsive design considerations
 
 ## Need More Help?
 
