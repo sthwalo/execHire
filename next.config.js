@@ -9,14 +9,18 @@ const nextConfig = {
     optimizePackageImports: ['@mui/icons-material', '@mui/material'],
   },
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'exechire.co.za'], 
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/webp'],
     minimumCacheTTL: 60,
+    unoptimized: true, 
   },
   poweredByHeader: false,
   compress: true,
+  output: 'standalone', 
+  basePath: '', 
+  trailingSlash: true, 
 }
 
 module.exports = nextConfig
