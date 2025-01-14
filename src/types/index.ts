@@ -1,3 +1,6 @@
+import { Decimal } from "@prisma/client/runtime/library";
+import { Category } from "@prisma/client";
+
 // Common interfaces and types
 export interface User {
   id: string;
@@ -12,11 +15,15 @@ export interface Vehicle {
   image: string;
   images: string[];
   price: string;
-  pricePerDay: number;
+  pricePerDay: Decimal;
+  pricePerHour: Decimal;
   specs: string[];
-  description?: string;
-  category: 'STANDARD' | 'LUXURY' | 'SPORT' | 'SUV' | 'VAN';
+  description: string | null;
+  category: Category;
   available: boolean;
+  featured: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Booking {

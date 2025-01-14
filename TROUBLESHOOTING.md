@@ -15,6 +15,7 @@ This guide covers common issues you might encounter while setting up or running 
 9. [Production Build Issues](#production-build-issues)
 10. [Module Not Found Errors](#module-not-found-errors)
 11. [Dependency Resolution Errors](#dependency-resolution-errors)
+12. [Type System Issues](#type-system-issues)
 
 ## Database Issues
 
@@ -598,6 +599,28 @@ Note: Using --legacy-peer-deps is a temporary solution. For long-term stability,
 - Updating your dependencies to compatible versions
 - Creating an issue in the relevant package repository
 - Using yarn or pnpm as alternative package managers
+
+## Type System Issues
+
+### Vehicle Type and Category Enum Mismatches
+
+**Problem**: Type errors with Vehicle interface and Category enum
+**Error**: 
+- `Type 'Vehicle[]' is not assignable to type '{ id: string; ... }'`
+- `Type 'Category' is not assignable to type '"STANDARD" | "LUXURY" | "SPORT" | "SUV" | "VAN"'`
+
+**Solution**:
+1. Import proper types from Prisma:
+   ```typescript
+   import { Vehicle, Category } from '@prisma/client';
+   import { Decimal } from "@prisma/client/runtime/library";
+   ```
+2. Update Vehicle interface to use Prisma types
+3. Replace hardcoded category union type with Prisma's Category enum
+
+**Files Modified**:
+- app/components/featured-cars.tsx
+- src/types/index.ts
 
 ## Need More Help?
 

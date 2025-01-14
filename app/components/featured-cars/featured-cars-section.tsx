@@ -2,7 +2,7 @@ import { Vehicle } from '@prisma/client';
 import { FeaturedCars } from './index';
 
 interface FeaturedCarsSectionProps {
-  vehicles: Vehicle[];  // Using the Prisma Vehicle type directly
+  vehicles: Vehicle[];
 }
 
 export function FeaturedCarsSection({ vehicles }: FeaturedCarsSectionProps) {
@@ -12,7 +12,7 @@ export function FeaturedCarsSection({ vehicles }: FeaturedCarsSectionProps) {
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
           Featured Vehicles
         </h2>
-        {vehicles && vehicles.length > 0 ? (
+        {vehicles.length > 0 ? (
           <FeaturedCars vehicles={vehicles} />
         ) : (
           <div className="text-center text-gray-500">

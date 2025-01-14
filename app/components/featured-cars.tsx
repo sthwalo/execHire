@@ -5,8 +5,9 @@ import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { setFeaturedVehicles, setSelectedVehicle } from '@/src/store/features/vehicle/vehicleSlice';
 import { useRouter } from 'next/navigation';
 import { createWhatsAppLink } from '@/lib/whatsapp';
-import { FeaturedCarsSection } from './featured-cars/featured-cars-section';
 import { Vehicle } from '@prisma/client';
+
+import { FeaturedCarsSection } from './featured-cars/featured-cars-section';
 
 interface FeaturedCarsProps {
   vehicles: Vehicle[];
@@ -21,7 +22,7 @@ export default function FeaturedCars() {
     // Select top 4 vehicles for featured section
     const featured = vehicles
       .filter(vehicle => vehicle.available)
-      .slice(0, 4) as unknown as Vehicle[];
+      .slice(0, 4);
     dispatch(setFeaturedVehicles(featured));
   }, [dispatch, vehicles]);
 
