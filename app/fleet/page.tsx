@@ -76,9 +76,13 @@ export default function Fleet() {
       // Redirect to payment page
       router.push(`/payment/${data.id}`);
     } catch (error) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Failed to create booking";
+        
       toast({
         title: "Booking Failed",
-        description: error.message || "Failed to create booking",
+        description: errorMessage,
         variant: "destructive",
       });
     }
