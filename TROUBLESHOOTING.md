@@ -149,6 +149,7 @@ export { handler as GET, handler as POST };
    - Rebuild the application: `npm run build`
 
 Note: In Next.js 13+, route files should only export route handlers (GET, POST, etc.). Configuration should be moved to separate files.
+- The route file should not export `authOptions`
 
 ### NextAuth Type Errors
 
@@ -610,18 +611,75 @@ Note: Using --legacy-peer-deps is a temporary solution. For long-term stability,
 - `Type 'Vehicle[]' is not assignable to type '{ id: string; ... }'`
 - `Type 'Category' is not assignable to type '"STANDARD" | "LUXURY" | "SPORT" | "SUV" | "VAN"'`
 
-**Solution**:
-1. Import proper types from Prisma:
-   ```typescript
-   import { Vehicle, Category } from '@prisma/client';
-   import { Decimal } from "@prisma/client/runtime/library";
-   ```
-2. Update Vehicle interface to use Prisma types
-3. Replace hardcoded category union type with Prisma's Category enum
+**Root Cause**: 
+1. The Vehicle interface requires specific properties that weren't included in the transformation
+2. Some properties from the Prisma schema weren't being properly handled in the frontend
 
-**Files Modified**:
-- app/components/featured-cars.tsx
-- src/types/index.ts
+**Solution**:
+1. Updated the vehicle transformation to include all required properties:
+```typescript
+const transformedVehicle: Vehicle = {
+  // ... existing properties ...
+  pricePerHour: vehicleData.pricePerHour || 0,
+  featured: vehicleData.featured ?? false,
+  createdAt: vehicleData.createdAt ? new Date(vehicleData.createdAt) : new Date(),
+  updatedAt: vehicleData.updatedAt ? new Date(vehicleData.updatedAt) : new Date()
+};
+```
+
+2. Added default values for optional properties:
+   - `pricePerHour`: defaults to 0
+   - `featured`: defaults to false
+   - `createdAt/updatedAt`: defaults to current date
+
+**Prevention**:
+1. Always check the Vehicle interface in `src/types/index.ts` when handling vehicle data
+2. Ensure API responses include all required fields
+3. Use TypeScript's type checking during development to catch missing properties
+
+**Related Files**:
+- `/app/components/booking-form.tsx`
+- `/src/types/index.ts`
+- `/prisma/schema.prisma`
+
+### Vehicle Type Transformation Issues
+
+#### Issue: Missing Required Vehicle Properties
+**Problem**: TypeScript error when transforming vehicle data in booking form:
+```typescript
+Type '{ id: any; ... }' is missing properties from type 'Vehicle': pricePerHour, featured, createdAt, updatedAt
+```
+
+**Root Cause**: 
+1. The Vehicle interface requires specific properties that weren't included in the transformation
+2. Some properties from the Prisma schema weren't being properly handled in the frontend
+
+**Solution**:
+1. Updated the vehicle transformation to include all required properties:
+```typescript
+const transformedVehicle: Vehicle = {
+  // ... existing properties ...
+  pricePerHour: vehicleData.pricePerHour || 0,
+  featured: vehicleData.featured ?? false,
+  createdAt: vehicleData.createdAt ? new Date(vehicleData.createdAt) : new Date(),
+  updatedAt: vehicleData.updatedAt ? new Date(vehicleData.updatedAt) : new Date()
+};
+```
+
+2. Added default values for optional properties:
+   - `pricePerHour`: defaults to 0
+   - `featured`: defaults to false
+   - `createdAt/updatedAt`: defaults to current date
+
+**Prevention**:
+1. Always check the Vehicle interface in `src/types/index.ts` when handling vehicle data
+2. Ensure API responses include all required fields
+3. Use TypeScript's type checking during development to catch missing properties
+
+**Related Files**:
+- `/app/components/booking-form.tsx`
+- `/src/types/index.ts`
+- `/prisma/schema.prisma`
 
 ## Communication Features
 

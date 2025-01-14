@@ -97,7 +97,9 @@ export function BookingForm({ selectedVehicleId }: BookingFormProps) {
       const selectedVehicle = vehicles.find(v => v.id === values.vehicleId);
       if (selectedVehicle) {
         const days = differenceInDays(values.endDate, values.startDate) + 1;
-        setTotalPrice(selectedVehicle.pricePerDay * days);
+        // Convert Decimal to number for calculation
+        const pricePerDay = Number(selectedVehicle.pricePerDay);
+        setTotalPrice(pricePerDay * days);
       }
     }
   }, [form.watch(['startDate', 'endDate', 'vehicleId']), vehicles]);
@@ -158,10 +160,14 @@ export function BookingForm({ selectedVehicleId }: BookingFormProps) {
         images: vehicleData.images || [],
         price: vehicleData.price,
         pricePerDay: vehicleData.pricePerDay,
+        pricePerHour: vehicleData.pricePerHour || 0,
         specs: vehicleData.specs || [],
         description: vehicleData.description || '',
         category: vehicleData.category || 'STANDARD',
-        available: vehicleData.available ?? true
+        available: vehicleData.available ?? true,
+        featured: vehicleData.featured ?? false,
+        createdAt: vehicleData.createdAt ? new Date(vehicleData.createdAt) : new Date(),
+        updatedAt: vehicleData.updatedAt ? new Date(vehicleData.updatedAt) : new Date()
       };
       
       dispatch(setSelectedVehicle(transformedVehicle));
