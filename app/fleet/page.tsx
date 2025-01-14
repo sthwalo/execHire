@@ -84,6 +84,13 @@ export default function Fleet() {
     }
   };
 
+  const createWhatsAppLink = (car: Vehicle) => {
+    const message = encodeURIComponent(
+      `Hello, I would like to inquire about the ${car.name}. Please provide more information.`
+    );
+    return `https://wa.me/27733366385?text=${message}`;
+  };
+
   if (loading) {
     return (
       <div className="container py-12 flex items-center justify-center">
@@ -137,18 +144,28 @@ export default function Fleet() {
                   </li>
                 ))}
               </ul>
-              <a
-                href="#"
-                className="block mt-4"
-                onClick={() => handleBookNow(car)}
-              >
+              <div className="flex gap-3 mt-4">
                 <Button 
-                  className="w-full"
+                  className="flex-1"
+                  onClick={() => handleBookNow(car)}
                   disabled={!car.available}
                 >
                   {car.available ? 'Book Now' : 'Currently Unavailable'}
                 </Button>
-              </a>
+                <a
+                  href={createWhatsAppLink(car)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1"
+                >
+                  <Button 
+                    variant="outline" 
+                    className="w-full hover:text-[#25D366] hover:border-[#25D366]"
+                  >
+                    More Info
+                  </Button>
+                </a>
+              </div>
             </div>
           </div>
         ))}

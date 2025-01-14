@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Car, Menu, X, Instagram, User, LogOut } from 'lucide-react';
+import { Car, Menu, X, Instagram, User, LogOut, MessageSquare } from 'lucide-react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import {
   DropdownMenu,
@@ -98,82 +98,80 @@ export function Navigation() {
               {route.name}
             </Link>
           ))}
-          
-          {session ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative">
-                  <User className="h-5 w-5" />
-                  <span className="ml-2">{session.user?.name || 'Account'}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem asChild>
-                  <Link href="/book" className="w-full">
-                    Book a Vehicle
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/profile" className="w-full">
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/profile?tab=bookings" className="w-full">
-                    My Bookings
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-red-600 cursor-pointer"
-                  onClick={handleSignOut}
-                  disabled={isSigningOut}
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  {isSigningOut ? 'Signing out...' : 'Sign Out'}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button onClick={() => signIn()} className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Sign In
-            </Button>
-          )}
+        </nav>
 
-          <div className="flex items-center gap-6">
+        <div className="hidden md:flex items-center space-x-4">
+          <div className="flex items-center space-x-4">
+            <a
+              href={`https://wa.me/27733366385?text=${encodeURIComponent('Hello, I would like to inquire about booking a vehicle.')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:text-[#25D366]"
+            >
+              <MessageSquare className="h-5 w-5" />
+            </a>
             {socialMediaLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary transition-colors"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:text-primary"
+                aria-label={link.ariaLabel}
               >
                 {link.label}
               </a>
             ))}
           </div>
-        </nav>
+          
+          {session ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem className="text-muted-foreground">
+                  {session.user?.email}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} disabled={isSigningOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="ghost" size="icon" onClick={() => signIn()}>
+              <User className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
 
-        <Button
-          variant="ghost"
-          className="relative z-50 md:hidden"
+        <button
+          className="md:hidden"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-expanded={isMenuOpen}
           aria-label="Toggle menu"
         >
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </Button>
+          {isMenuOpen ? (
+            <X className="h-6 w-6" />
+          ) : (
+            <Menu className="h-6 w-6" />
+          )}
+        </button>
+      </div>
 
-        {isMenuOpen && (
-          <div className="fixed inset-y-0 right-0 z-40 w-full md:hidden">
-            <nav className="mobile-nav-content container pt-20 flex flex-col space-y-4 bg-gray-100 p-6 rounded-lg">
+      {/* Mobile navigation */}
+      {isMenuOpen && (
+        <div className="md:hidden border-t mobile-nav-content">
+          <div className="container py-4">
+            <nav className="flex flex-col space-y-4">
               {routes.map((route) => (
                 <Link
                   key={route.path}
                   href={route.path}
                   className={cn(
-                    'text-sm font-medium transition-colors hover:text-primary p-2',
+                    'text-sm font-medium transition-colors hover:text-primary',
                     pathname === route.path ? 'text-primary' : 'text-muted-foreground'
                   )}
                   onClick={() => setIsMenuOpen(false)}
@@ -181,62 +179,63 @@ export function Navigation() {
                   {route.name}
                 </Link>
               ))}
-              {session ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative w-full">
-                      <User className="h-5 w-5" />
-                      <span className="ml-2">{session.user?.name || 'Account'}</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem asChild>
-                      <Link href="/book" className="w-full">
-                        Book a Vehicle
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile" className="w-full">
-                        Profile
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link href="/profile?tab=bookings" className="w-full">
-                        My Bookings
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      className="text-red-600 cursor-pointer"
-                      onClick={handleSignOut}
-                      disabled={isSigningOut}
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      {isSigningOut ? 'Signing out...' : 'Sign Out'}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button onClick={() => signIn()} className="w-full">
-                  Sign In
-                </Button>
-              )}
-              <div className="flex items-center gap-4 pt-4">
-                {socialMediaLinks.map((link) => (
+              <div className="flex items-center space-x-4 pt-4 border-t">
+                <div className="flex items-center space-x-4">
                   <a
-                    key={link.href}
-                    href={link.href}
+                    href={`https://wa.me/27733366385?text=${encodeURIComponent('Hello, I would like to inquire about booking a vehicle.')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-[#25D366] transition-colors"
+                  >
+                    <MessageSquare className="h-5 w-5" />
+                  </a>
+                  <a
+                    href="https://www.tiktok.com/@execuhire?_t=ZM-8swb42mNWGU&_r=1"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted-foreground hover:text-primary transition-colors"
+                    aria-label="Follow us on TikTok"
                   >
-                    {link.label}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                    </svg>
                   </a>
-                ))}
+                  <a
+                    href="https://www.instagram.com/execuhire"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-primary transition-colors"
+                    aria-label="Follow us on Instagram"
+                  >
+                    <Instagram className="h-5 w-5" />
+                  </a>
+                </div>
+                {session ? (
+                  <Button variant="ghost" className="w-full justify-start" onClick={handleSignOut} disabled={isSigningOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </Button>
+                ) : (
+                  <Button variant="ghost" className="w-full justify-start" onClick={() => signIn()}>
+                    <User className="mr-2 h-4 w-4" />
+                    Sign In
+                  </Button>
+                )}
               </div>
             </nav>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </header>
   );
 }
