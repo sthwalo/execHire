@@ -38,7 +38,7 @@ async function main() {
     },
     {
       name: "Audi S5 Convertible",
-      image: "/images/fleet/s5.avif",
+      image: "/images/fleet/S5conver.avif",
       price: "R8,000/half-day | R2,500/hr",
       specs: ["Sports Convertible", "3.0L V6 Turbo", "8-Speed Auto", "4 Seats", "349 HP"],
       available: true,

@@ -1,0 +1,29 @@
+.rdp {
+  --rdp-cell-size: 40px;
+  --rdp-accent-color: #0ea5e9;
+  --rdp-background-color: #e7edff;
+  margin: 0;
+}
+
+.rdp-months {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+
+.rdp-day_selected, 
+.rdp-day_selected:focus-visible, 
+.rdp-day_selected:hover {
+  background-color: var(--rdp-accent-color);
+  color: white;
+}
+
+.rdp-day_today {
+  font-weight: bold;
+  color: var(--rdp-accent-color);
+}
+
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: var(--rdp-background-color);
+}

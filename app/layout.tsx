@@ -8,6 +8,7 @@ import { ReduxProvider } from '@/src/store/provider';
 import { SafeComponent } from '@/components/error-boundary';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/toaster';
+import '@/styles/calendar.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
