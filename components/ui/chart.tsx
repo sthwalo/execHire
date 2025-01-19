@@ -2,6 +2,15 @@
 
 import * as React from 'react';
 import * as RechartsPrimitive from 'recharts';
+import { 
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid 
+} from 'recharts'
 
 import { cn } from '@/lib/utils';
 
@@ -355,6 +364,33 @@ function getPayloadConfigFromPayload(
     : config[key as keyof typeof config];
 }
 
+interface ChartProps extends React.HTMLAttributes<HTMLDivElement> {
+  data: any[]
+}
+
+const Chart = React.forwardRef<HTMLDivElement, ChartProps>(
+  ({ className, data, ...props }, ref) => (
+    <div ref={ref} className={cn("", className)} {...props}>
+      <ResponsiveContainer width="100%" height={350}>
+        <LineChart data={data}>
+          <XAxis dataKey="name" stroke="#888888" fontSize={12} />
+          <YAxis stroke="#888888" fontSize={12} />
+          <CartesianGrid strokeDasharray="3 3" />
+          <Tooltip />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="currentColor"
+            strokeWidth={2}
+            activeDot={{ r: 8 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  )
+)
+Chart.displayName = "Chart"
+
 export {
   ChartContainer,
   ChartTooltip,
@@ -362,4 +398,5 @@ export {
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  Chart,
 };

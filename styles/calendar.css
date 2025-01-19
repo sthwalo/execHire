@@ -2,11 +2,11 @@
   --rdp-cell-size: 40px;
   --rdp-accent-color: #0ea5e9;
   --rdp-background-color: #e7edff;
-  margin: 0;
+  margin: var(--lwc-spacingNone, 0);
 }
 
 .rdp-months {
-  background-color: white;
+  background-color: var(--lwc-brandHeader, white);
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.12);

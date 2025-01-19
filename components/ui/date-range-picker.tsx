@@ -16,13 +16,13 @@ import {
 
 interface DatePickerWithRangeProps extends React.HTMLAttributes<HTMLDivElement> {
   selected: DateRange
-  onSelect: (range: DateRange | undefined) => void
+  onDateSelect: (range: DateRange | undefined) => void
 }
 
 export function DatePickerWithRange({
   className,
   selected,
-  onSelect,
+  onDateSelect,
 }: DatePickerWithRangeProps) {
   return (
     <div className={cn("grid gap-2", className)}>
@@ -57,7 +57,7 @@ export function DatePickerWithRange({
             mode="range"
             defaultMonth={selected?.from}
             selected={selected}
-            onSelect={onSelect}
+            onSelect={onDateSelect}
             numberOfMonths={2}
             disabled={(date) => date < new Date()}
             className="rounded-md border"

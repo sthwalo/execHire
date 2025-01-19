@@ -6,13 +6,69 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useAppDispatch, useAppSelector } from '@/src/store/hooks';
 import { fetchVehicles, setSelectedVehicle } from '@/src/store/features/vehicle/vehicleSlice';
-import { DatePickerWithRange } from '@/components/ui/date-range-picker';
-import { addDays } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/hooks/use-toast';
 import type { Vehicle } from '@/src/types';
 import { useRouter } from 'next/navigation';
 import { DateRange } from 'react-day-picker';
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+
+export interface DatePickerWithRangeProps {
+  selected: DateRange | undefined
+  onSelect: (range: DateRange | undefined) => void
+  onDateSelect: (date: Date) => void
+}
+
+export function DatePickerWithRange({
+  selected,
+  onSelect,
+  onDateSelect,
+}: DatePickerWithRangeProps) {
+  return (
+    <div className="grid gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            id="date"
+            variant={"outline"}
+            className={cn(
+              "w-[300px] justify-start text-left font-normal",
+              !selected && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {selected?.from ? (
+              selected.to ? (
+                <>
+                  {format(selected.from, "LLL dd, y")} -{" "}
+                  {format(selected.to, "LLL dd, y")}
+                </>
+              ) : (
+                format(selected.from, "LLL dd, y")
+              )
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={selected?.from}
+            selected={selected}
+            onSelect={onSelect}
+            numberOfMonths={2}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
+}
 
 export default function Fleet() {
   const dispatch = useAppDispatch();
@@ -20,10 +76,7 @@ export default function Fleet() {
   const { toast } = useToast();
   const router = useRouter();
   const [bookingModal, setBookingModal] = useState(false);
-  const [selectedDates, setSelectedDates] = useState<DateRange>({
-    from: new Date(),
-    to: addDays(new Date(), 1)
-  });
+  const [selectedDates, setSelectedDates] = useState<DateRange>();
   const { vehicles, loading, error, selectedVehicle } = useAppSelector((state) => state.vehicle);
 
   useEffect(() => {
@@ -56,8 +109,8 @@ export default function Fleet() {
         body: JSON.stringify({
           userId: session.user.id,
           vehicleId: selectedVehicle.id,
-          startDate: selectedDates.from,
-          endDate: selectedDates.to,
+          startDate: selectedDates?.from,
+          endDate: selectedDates?.to,
         }),
       });
 
@@ -220,7 +273,11 @@ export default function Fleet() {
           <div className="space-y-4">
             <DatePickerWithRange
               selected={selectedDates}
-              onSelect={(range) => range && setSelectedDates(range)}
+              onSelect={(range) => setSelectedDates(range)}
+              onDateSelect={(date) => {
+                // Handle single date selection if needed
+                console.log('Single date selected:', date)
+              }}
             />
             <Button 
               onClick={handleBookingSubmit}

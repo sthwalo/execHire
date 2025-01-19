@@ -36,6 +36,7 @@ type PaymentInput = {
 };
 
 type ReviewInput = {
+  userId: string;
   vehicleId: string;
   rating: number;
   comment?: string;
@@ -114,16 +115,17 @@ export async function processPayment(data: PaymentInput): Promise<Payment> {
   return payment;
 }
 
-// Review Operations
 export async function createReview(data: ReviewInput): Promise<Review> {
   return prisma.review.create({
     data: {
+      userId: data.userId,
       vehicleId: data.vehicleId,
       rating: data.rating,
       comment: data.comment || ''
     }
   });
 }
+
 
 // Notification Operations
 export async function getUserNotifications(userId: string): Promise<Notification[]> {
@@ -165,18 +167,18 @@ export async function getBookingAnalytics(startDate: Date, endDate: Date): Promi
   });
 
   const totalBookings = bookings.length;
-  const totalRevenue = bookings.reduce((acc: { add: (arg0: any) => any; }, booking: { payment: { status: string; }; totalAmount: any; }) => {
-    if (booking.payment?.status === PaymentStatus.COMPLETED) {
+  const totalRevenue = bookings.reduce((acc: Decimal, booking) => {
+    if (booking.payment && booking.payment.status === PaymentStatus.COMPLETED) {
       return acc.add(booking.totalAmount);
     }
     return acc;
   }, new Decimal(0));
 
-  const bookingsByCategory = bookings.reduce((acc: { [x: string]: any; }, booking: { vehicle: { category: any; }; }) => {
+  const bookingsByCategory = bookings.reduce((acc: Record<Category, number>, booking) => {
     const category = booking.vehicle.category;
     acc[category] = (acc[category] || 0) + 1;
     return acc;
-  }, {} as Record<Category, number>);
+  }, Object.values(Category).reduce((obj, cat) => ({ ...obj, [cat]: 0 }), {} as Record<Category, number>));
 
   return {
     totalBookings,
