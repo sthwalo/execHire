@@ -21,7 +21,9 @@
     "export": "next export",
     "reset": "rm -rf .next node_modules package-lock.json && npm install --legacy-peer-deps && npx prisma generate",
     "db:reset": "npx prisma migrate reset --force",
-    "build:start": "next build && next start"
+    "build:start": "next build && next start",
+    "deploy": "next build && next export && node scripts/deploy-afrihost.js",
+    "static": "next build && next export"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

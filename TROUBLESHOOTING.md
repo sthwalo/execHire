@@ -17,6 +17,7 @@ This guide covers common issues you might encounter while setting up or running 
 11. [Dependency Resolution Errors](#dependency-resolution-errors)
 12. [Type System Issues](#type-system-issues)
 13. [Communication Features](#communication-features)
+14. [PHP Laravel Migration Guide](#php-laravel-migration-guide)
 
 ## Database Issues
 
@@ -749,3 +750,169 @@ If you're still experiencing issues:
 2. Join our [Discord Community](https://discord.gg/execuhire)
 3. Contact support at support@execuhire.com
 4. Create a new issue with detailed reproduction steps
+
+## PHP Laravel Migration Guide
+
+### Database Configuration
+
+1. Update `.env` file for MariaDB:
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=execuhire
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+2. Install required packages:
+```bash
+composer require doctrine/dbal
+```
+
+3. Create migration files:
+```bash
+php artisan make:migration create_vehicles_table
+php artisan make:migration create_bookings_table
+php artisan make:migration create_users_table
+```
+
+### Database Schema Migration
+
+Convert Prisma schema to Laravel migrations:
+
+```php
+// In database/migrations/xxxx_create_vehicles_table.php
+public function up()
+{
+    Schema::create('vehicles', function (Blueprint $table) {
+        $table->id();
+        $table->string('name')->unique();
+        $table->string('image');
+        $table->decimal('price_per_hour', 10, 2);
+        $table->enum('category', ['STANDARD', 'LUXURY', 'SPORT', 'SUV', 'VAN']);
+        $table->boolean('featured')->default(false);
+        $table->timestamps();
+    });
+}
+```
+
+### Model Setup
+
+Create Eloquent models with relationships:
+
+```php
+// In app/Models/Vehicle.php
+class Vehicle extends Model
+{
+    protected $fillable = [
+        'name',
+        'image',
+        'price_per_hour',
+        'category',
+        'featured'
+    ];
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+}
+```
+
+### Authentication Setup
+
+1. Install Laravel Breeze for authentication:
+```bash
+composer require laravel/breeze --dev
+php artisan breeze:install
+```
+
+2. Configure session driver in `.env`:
+```env
+SESSION_DRIVER=file
+```
+
+### Common Commands
+
+```bash
+# Database commands
+php artisan migrate:fresh --seed
+php artisan db:seed
+
+# Clear application cache
+php artisan cache:clear
+php artisan config:clear
+
+# Start development server
+php artisan serve
+```
+
+### Development Environment Setup
+
+1. Install PHP 8.1 or higher
+2. Install Composer
+3. Install MariaDB
+4. Enable required PHP extensions:
+   - php-mysql
+   - php-mbstring
+   - php-xml
+   - php-curl
+
+### MariaDB Specific Notes
+
+1. Create database:
+```sql
+CREATE DATABASE execuhire;
+```
+
+2. Grant privileges:
+```sql
+GRANT ALL PRIVILEGES ON execuhire.* TO 'username'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+3. Import existing data:
+```bash
+php artisan make:seeder VehicleSeeder
+php artisan db:seed --class=VehicleSeeder
+```
+
+### Deployment Checklist
+
+1. Environment setup:
+   - Set APP_ENV=production
+   - Set APP_DEBUG=false
+   - Generate APP_KEY
+   - Configure database credentials
+
+2. Optimize application:
+```bash
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+3. File permissions:
+```bash
+chmod -R 755 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+```
+
+### Common Issues
+
+#### Database Connection Failed
+**Problem**: Cannot connect to MariaDB
+**Solution**:
+1. Verify MariaDB service is running
+2. Check credentials in .env
+3. Confirm database exists
+4. Test connection: `php artisan db:monitor`
+
+#### Migration Failures
+**Problem**: Migrations fail to run
+**Solution**:
+1. Check for syntax errors
+2. Verify table names
+3. Run with force flag: `php artisan migrate --force`
+4. Reset database: `php artisan migrate:fresh`

@@ -34,3 +34,46 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# PHP dependencies
+/vendor/
+composer.phar
+
+# PHP environment files
+.env
+.env.backup
+.phpunit.result.cache
+
+# Cache and logs
+/storage/*.key
+*.log
+.php_cs.cache
+
+# IDE specific files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.phpstorm.meta.php
+_ide_helper.php
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Build directories
+/build/
+/dist/
+/public/storage
+/public/hot
+
+# PHPUnit
+.phpunit.cache
+.phpunit.result.cache
+
+# PHP CS Fixer
+.php-cs-fixer.cache
+.php_cs.cache
+
+# Local config
+*.local.php

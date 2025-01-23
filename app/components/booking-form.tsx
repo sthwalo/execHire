@@ -31,6 +31,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { staticDb } from '@/lib/db-static';
 
 // Define the form validation schema
 const bookingFormSchema = z.object({
@@ -74,9 +75,7 @@ export function BookingForm({ selectedVehicleId }: BookingFormProps) {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch('/api/vehicles');
-        if (!response.ok) throw new Error('Failed to fetch vehicles');
-        const data = await response.json();
+        const data = await staticDb.vehicles.findMany();
         setVehicles(data);
       } catch (error) {
         console.error('Error fetching vehicles:', error);
@@ -124,27 +123,13 @@ export function BookingForm({ selectedVehicleId }: BookingFormProps) {
         throw new Error('Vehicle not found');
       }
 
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          vehicleId,
-          startDate: format(startDate, 'yyyy-MM-dd'),
-          endDate: format(endDate, 'yyyy-MM-dd'),
-          totalAmount: totalPrice,
-        }),
-        credentials: 'include', // Add this to include cookies
+      const booking = await staticDb.bookings.create({
+        vehicleId: values.vehicleId,
+        startDate: values.startDate,
+        endDate: values.endDate,
+        totalAmount: totalPrice,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to create booking' }));
-        throw new Error(errorData.error || 'Failed to create booking');
-      }
-
-      const booking = await response.json();
-      
       // Fetch the vehicle details before dispatching
       const vehicleResponse = await fetch(`/api/vehicles/${vehicleId}`);
       if (!vehicleResponse.ok) {
@@ -194,6 +179,7 @@ export function BookingForm({ selectedVehicleId }: BookingFormProps) {
       setLoading(false);
     }
   };
+
 
   return (
     <Form {...form}>
@@ -336,3 +322,8 @@ export function BookingForm({ selectedVehicleId }: BookingFormProps) {
     </Form>
   );
 }
+//  setEmail function 
+
+// In handleSubmit, replace the individual setter calls with:
+form.reset();
+
